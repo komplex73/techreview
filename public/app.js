@@ -5,27 +5,35 @@ const api = {
     try {
       const res = await fetch(`${API_URL}${endpoint}`);
       if (!res.ok) throw new Error("Veri çekilemedi");
-      return await res.json();
+      const data = await res.json();
+      console.log(`✓ API GET ${endpoint}:`, data);
+      return data;
     } catch (e) {
-      console.error(e);
+      console.error(`✗ API GET Error ${endpoint}:`, e);
       return [];
     }
   },
   async post(endpoint, data) {
+    console.log(`→ API POST ${endpoint}:`, data);
     const res = await fetch(`${API_URL}${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    return await res.json();
+    const result = await res.json();
+    console.log(`✓ API POST Response ${endpoint}:`, result);
+    return result;
   },
   async put(endpoint, data) {
+    console.log(`→ API PUT ${endpoint}:`, data);
     const res = await fetch(`${API_URL}${endpoint}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    return await res.json();
+    const result = await res.json();
+    console.log(`✓ API PUT Response ${endpoint}:`, result);
+    return result;
   },
   async delete(endpoint) {
     await fetch(`${API_URL}${endpoint}`, { method: "DELETE" });
@@ -52,12 +60,12 @@ const app = {
   // Toggle comparison for a product
   toggleCompare(id) {
     if (!this.products) return;
-    const product = this.products.find(p => p.id === id);
+    const product = this.products.find((p) => p.id === id);
     if (!product) return;
 
-    const exists = this.compareList.find(p => p.id === id);
+    const exists = this.compareList.find((p) => p.id === id);
     if (exists) {
-      this.compareList = this.compareList.filter(p => p.id !== id);
+      this.compareList = this.compareList.filter((p) => p.id !== id);
     } else {
       if (this.compareList.length >= 3) {
         alert("En fazla 3 ürün karşılaştırabilirsiniz.");
@@ -65,7 +73,7 @@ const app = {
       }
       this.compareList.push(product);
     }
-    
+
     // Re-render to update buttons
     this.renderProducts(this.products);
     this.renderCompareBar();
@@ -81,24 +89,27 @@ const app = {
     if (!bar) {
       bar = document.createElement("div");
       bar.id = "compare-bar";
-      bar.className = "fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-50 transform transition-transform duration-300 translate-y-0";
+      bar.className =
+        "fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-50 transform transition-transform duration-300 translate-y-0";
       // Ensure it respects sidebar margin
       if (window.innerWidth >= 769) {
-          const sidebar = document.getElementById("sidebar-nav");
-          const isExpanded = sidebar && sidebar.classList.contains("expanded");
-          bar.style.paddingLeft = isExpanded ? "260px" : "80px";
+        const sidebar = document.getElementById("sidebar-nav");
+        const isExpanded = sidebar && sidebar.classList.contains("expanded");
+        bar.style.paddingLeft = isExpanded ? "260px" : "80px";
       }
       document.body.appendChild(bar);
     } else {
-       // Update padding if needed
-       if (window.innerWidth >= 769) {
-          const sidebar = document.getElementById("sidebar-nav");
-          const isExpanded = sidebar && sidebar.classList.contains("expanded");
-          bar.style.paddingLeft = isExpanded ? "260px" : "80px";
-       }
+      // Update padding if needed
+      if (window.innerWidth >= 769) {
+        const sidebar = document.getElementById("sidebar-nav");
+        const isExpanded = sidebar && sidebar.classList.contains("expanded");
+        bar.style.paddingLeft = isExpanded ? "260px" : "80px";
+      }
     }
 
-    const itemsHtml = this.compareList.map(p => `
+    const itemsHtml = this.compareList
+      .map(
+        (p) => `
       <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200">
         <img src="${p.image}" class="w-10 h-10 rounded object-cover" onerror="this.src='https://placehold.co/100'">
         <div class="text-xs font-bold text-slate-700 max-w-[100px] truncate">${p.name}</div>
@@ -106,7 +117,9 @@ const app = {
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-    `).join("");
+    `
+      )
+      .join("");
 
     bar.innerHTML = `
       <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -136,49 +149,71 @@ const app = {
           
           <div class="p-8">
             <h2 class="text-2xl font-black text-slate-800 mb-8 text-center">Karşılaştırma</h2>
-            <div class="grid grid-cols-${this.compareList.length} gap-8 divide-x divide-slate-100">
-              ${this.compareList.map(p => `
+            <div class="grid grid-cols-${
+              this.compareList.length
+            } gap-8 divide-x divide-slate-100">
+              ${this.compareList
+                .map(
+                  (p) => `
                 <div class="flex flex-col gap-6">
                   <div class="aspect-video bg-slate-100 rounded-xl overflow-hidden relative group">
                     <img src="${p.image}" class="w-full h-full object-cover">
-                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-xs font-bold shadow-sm">ID: ${p.id}</span>
+                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-xs font-bold shadow-sm">ID: ${
+                      p.id
+                    }</span>
                   </div>
                   <div class="text-center">
-                    <h3 class="font-black text-xl text-slate-800 mb-2">${p.name}</h3>
-                    <span class="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold uppercase tracking-wide">${p.category}</span>
+                    <h3 class="font-black text-xl text-slate-800 mb-2">${
+                      p.name
+                    }</h3>
+                    <span class="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold uppercase tracking-wide">${
+                      p.category
+                    }</span>
                   </div>
                   
                   <div class="space-y-4">
                     <div class="bg-slate-50 p-4 rounded-xl text-center">
                         <span class="block text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">Puan</span>
                         <div class="text-3xl font-black text-blue-600 flex items-center justify-center gap-2">
-                            ${p.avgRating ? Number(p.avgRating).toFixed(1) : '0.0'}
+                            ${
+                              p.avgRating
+                                ? Number(p.avgRating).toFixed(1)
+                                : "0.0"
+                            }
                             <i class="fa-solid fa-star text-base text-yellow-400"></i>
                         </div>
                     </div>
                     
                     <div class="p-4 border border-slate-100 rounded-xl">
                         <span class="block text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Açıklama</span>
-                        <p class="text-sm text-slate-600 leading-relaxed">${p.description}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">${
+                          p.description
+                        }</p>
                     </div>
 
                      <div class="p-4 border border-slate-100 rounded-xl text-center">
                         <span class="block text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Ekleyen</span>
                         <div class="flex items-center justify-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">${(p.username||'U').charAt(0)}</div>
-                            <span class="text-sm font-medium">${p.username || 'Anonim'}</span>
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">${(
+                              p.username || "U"
+                            ).charAt(0)}</div>
+                            <span class="text-sm font-medium">${
+                              p.username || "Anonim"
+                            }</span>
                         </div>
                     </div>
                   </div>
                 </div>
-              `).join('')}
+              `
+                )
+                .join("")}
             </div>
           </div>
         </div>
       </div>
     `;
-    
-    const div = document.createElement('div');
+
+    const div = document.createElement("div");
     div.innerHTML = modalHtml;
     document.body.appendChild(div.firstElementChild);
   },
@@ -245,21 +280,26 @@ const app = {
     const storedState = localStorage.getItem(storageKey);
     // Default: Home -> expanded, Others -> collapsed (unless user saved preference)
     // If no stored state: Home=true, Others=false
-    const isExpanded = storedState !== null 
+    const isExpanded =
+      storedState !== null
         ? storedState === "expanded"
-        : (pageId === "page-home");
+        : pageId === "page-home";
 
     sidebarContainer.innerHTML = `
       <div class="sidebar-overlay" id="sidebar-overlay"></div>
       <nav class="sidebar-nav ${isExpanded ? "expanded" : ""}" id="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Ana Menü</div>
-          <a href="index.html" class="nav-item ${pageId === "page-home" ? "active" : ""}">
+          <a href="index.html" class="nav-item ${
+            pageId === "page-home" ? "active" : ""
+          }">
             <i class="fa-solid fa-magnifying-glass"></i>
             <span>İncelemeler</span>
           </a>
           <div class="relative group">
-            <a href="news.html" class="nav-item ${pageId === "page-news" ? "active" : ""}">
+            <a href="news.html" class="nav-item ${
+              pageId === "page-news" ? "active" : ""
+            }">
                 <i class="fa-regular fa-newspaper"></i>
                 <span>Haberler</span>
             </a>
@@ -284,7 +324,11 @@ const app = {
                 </div>
             </div>
           </div>
-          <a href="forum.html" class="nav-item ${pageId === "page-forum" || pageId === "page-forum-detail" ? "active" : ""}">
+          <a href="forum.html" class="nav-item ${
+            pageId === "page-forum" || pageId === "page-forum-detail"
+              ? "active"
+              : ""
+          }">
             <i class="fa-regular fa-comments"></i>
             <span>Forum</span>
           </a>
@@ -307,9 +351,9 @@ const app = {
       main.classList.add("with-sidebar");
       // Initially sync body class for CSS margins based on state
       if (!isExpanded) {
-         document.body.classList.add("sidebar-closed");
+        document.body.classList.add("sidebar-closed");
       } else {
-         document.body.classList.remove("sidebar-closed");
+        document.body.classList.remove("sidebar-closed");
       }
     }
 
@@ -346,17 +390,17 @@ const app = {
     // HAMBURGER BUTTON LOGIC
     const categoryBtn = document.getElementById("category-btn");
     const sidebar = document.getElementById("sidebar-nav");
-    
+
     if (categoryBtn && sidebar && overlay) {
       categoryBtn.onclick = () => {
         const isMobile = window.innerWidth <= 768;
-        
+
         if (isMobile) {
           // Mobile: toggle overlay
           const isOpen = sidebar.classList.contains("open");
           sidebar.classList.toggle("open");
           overlay.classList.toggle("show");
-          
+
           const icon = categoryBtn.querySelector("i");
           if (isOpen) {
             icon.classList.remove("fa-xmark");
@@ -369,14 +413,15 @@ const app = {
           // Desktop: toggle expansion AND save state
           sidebar.classList.toggle("expanded");
           document.body.classList.toggle("sidebar-closed");
-          
-          const newState = sidebar.classList.contains("expanded") ? "expanded" : "collapsed";
+
+          const newState = sidebar.classList.contains("expanded")
+            ? "expanded"
+            : "collapsed";
           localStorage.setItem(storageKey, newState);
         }
       };
     }
   },
-
 
   // --- NAVBAR GÜNCELLENDİ (CSS ile Uyumlu Logo) ---
   renderNavbar() {
@@ -384,13 +429,13 @@ const app = {
     if (!navContainer) return;
 
     // Show/Hide mobile write button based on auth
-    const mobileWriteBtn = document.getElementById('mobile-write-btn');
+    const mobileWriteBtn = document.getElementById("mobile-write-btn");
     if (mobileWriteBtn) {
-        if (this.currentUser) {
-            mobileWriteBtn.style.display = 'flex';
-        } else {
-            mobileWriteBtn.style.display = 'none';
-        }
+      if (this.currentUser) {
+        mobileWriteBtn.style.display = "flex";
+      } else {
+        mobileWriteBtn.style.display = "none";
+      }
     }
 
     const userHtml = this.currentUser
@@ -486,7 +531,7 @@ const app = {
                 ${userHtml}
             </div>
         </nav>`;
-    
+
     // Ensure main content has sidebar class for spacing
     const main = document.querySelector("main");
     if (main) main.classList.add("with-sidebar");
@@ -620,15 +665,20 @@ const app = {
 
   // --- HELPER: YILDIZ OLUŞTURUCU (Tüm sorunları çözen tek fonksiyon) ---
   generateStarRating(rating) {
-      const numRating = parseFloat(rating) || 0;
-      const fullStars = Math.floor(numRating);
-      const hasHalf = numRating - fullStars >= 0.5;
-      
-      return Array(5).fill(0).map((_, i) => {
-          if (i < fullStars) return '<i class="fa-solid fa-star text-yellow-400"></i>';
-          if (i === fullStars && hasHalf) return '<i class="fa-solid fa-star-half-stroke text-yellow-400"></i>';
-          return '<i class="fa-regular fa-star text-gray-300"></i>'; // Boş yıldızlar için fa-regular kullanıyoruz
-      }).join('');
+    const numRating = parseFloat(rating) || 0;
+    const fullStars = Math.floor(numRating);
+    const hasHalf = numRating - fullStars >= 0.5;
+
+    return Array(5)
+      .fill(0)
+      .map((_, i) => {
+        if (i < fullStars)
+          return '<i class="fa-solid fa-star text-orange-400"></i>';
+        if (i === fullStars && hasHalf)
+          return '<i class="fa-solid fa-star-half-stroke text-orange-400"></i>';
+        return '<i class="fa-regular fa-star text-gray-300"></i>';
+      })
+      .join("");
   },
 
   // --- ANA SAYFA ---
@@ -638,7 +688,7 @@ const app = {
     const searchInput = document.getElementById("search-input");
 
     this.products = [];
-    let sortOrder = 'desc'; // desc (newest first) or asc (oldest first)
+    let sortOrder = "desc"; // desc (newest first) or asc (oldest first)
     let currentCategory = "Tümü";
 
     window.filterCategory = (cat) => {
@@ -670,29 +720,32 @@ const app = {
     };
 
     if (searchInput)
-      searchInput.addEventListener("input", () => window.filterCategory("Tümü"));
+      searchInput.addEventListener("input", () =>
+        window.filterCategory("Tümü")
+      );
 
     // Sort Button Logic
     const sortBtn = document.getElementById("sort-btn");
     if (sortBtn) {
-        sortBtn.onclick = () => {
-            sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-            
-            // Icon & Text Update
-            sortBtn.innerHTML = sortOrder === 'desc' 
-                ? '<i class="fa-solid fa-arrow-down-wide-short"></i> En Yeni' 
-                : '<i class="fa-solid fa-arrow-up-wide-short"></i> En Eski';
-            
-            // Sort logic
-            this.products.sort((a, b) => {
-                const dateA = new Date(a.createdAt);
-                const dateB = new Date(b.createdAt);
-                return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-            });
+      sortBtn.onclick = () => {
+        sortOrder = sortOrder === "desc" ? "asc" : "desc";
 
-            // Re-render
-            window.filterCategory(currentCategory);
-        };
+        // Icon & Text Update
+        sortBtn.innerHTML =
+          sortOrder === "desc"
+            ? '<i class="fa-solid fa-arrow-down-wide-short"></i> En Yeni'
+            : '<i class="fa-solid fa-arrow-up-wide-short"></i> En Eski';
+
+        // Sort logic
+        this.products.sort((a, b) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+        });
+
+        // Re-render
+        window.filterCategory(currentCategory);
+      };
     }
 
     try {
@@ -720,8 +773,7 @@ const app = {
     } catch (e) {
       console.error("Home initialization failed:", e);
       if (container)
-        container.innerHTML =
-          `<p class="col-span-full text-center text-red-500">Veriler yüklenirken bir hata oluştu. (${e.message})</p>`;
+        container.innerHTML = `<p class="col-span-full text-center text-red-500">Veriler yüklenirken bir hata oluştu. (${e.message})</p>`;
     }
   },
 
@@ -736,30 +788,41 @@ const app = {
       ? `<button onclick="app.deleteProduct(${p.id}, event)" class="absolute top-3 left-3 bg-white text-red-500 rounded-full w-8 h-8 shadow-md hover:bg-red-50 z-20 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>`
       : "";
     const link = `product-detail.html?id=${p.id}`;
-    
+
     // Use real rating from DB, default to 0.0 if empty
     const avgRating = p.avgRating ? Number(p.avgRating).toFixed(1) : "0.0";
     const starsHtml = this.generateStarRating(avgRating);
 
     // Check if compare is active
-    const isCompareActive = this.compareList && this.compareList.find(c => c.id === p.id);
-    const compareBtnRequest = isCompareActive ? 'btn-compare active' : 'btn-compare';
-    const compareBtnText = isCompareActive ? 'Eklendi' : 'Karşılaştır';
+    const isCompareActive =
+      this.compareList && this.compareList.find((c) => c.id === p.id);
+    const compareBtnRequest = isCompareActive
+      ? "btn-compare active"
+      : "btn-compare";
+    const compareBtnText = isCompareActive ? "Eklendi" : "Karşılaştır";
 
     if (compact)
-    return `
+      return `
           <div class="premium-card cursor-pointer relative h-full flex flex-col group" onclick="window.location.href='${link}'">
               ${delBtn}
               <div class="h-32 bg-slate-100 relative overflow-hidden rounded-t-2xl">
-                  <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400'">
+                  <img src="${
+                    p.image
+                  }" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400'">
                   <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
               </div>
               <div class="p-4 flex flex-col flex-1 bg-white rounded-b-2xl border border-t-0 border-gray-100">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-blue-500 mb-1">${p.category}</span>
-                  <h3 class="font-bold text-sm text-slate-800 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">${p.name}</h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-blue-500 mb-1">${
+                    p.category
+                  }</span>
+                  <h3 class="font-bold text-sm text-slate-800 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">${
+                    p.name
+                  }</h3>
                   <div class="star-rating text-xs mb-2">${starsHtml}</div>
                   <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                      <span class="text-xs text-slate-400">${p.username || "Anonim"}</span>
+                      <span class="text-xs text-slate-400">${
+                        p.username || "Anonim"
+                      }</span>
                       <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
                         <i class="fa-solid fa-star text-orange-400 text-[10px]"></i> ${avgRating}
                       </span>
@@ -771,22 +834,38 @@ const app = {
             <div class="premium-card cursor-pointer relative group" onclick="window.location.href='${link}'">
                 ${delBtn}
                 <div class="h-48 bg-slate-100 relative overflow-hidden">
-                    <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600'">
-                    <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-700 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">${p.category}</span>
+                    <img src="${
+                      p.image
+                    }" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600'">
+                    <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-700 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">${
+                      p.category
+                    }</span>
                 </div>
                 <div class="p-5">
                     <div class="flex items-center justify-between mb-3">
                         <div class="star-rating">${starsHtml}</div>
                         <span class="text-sm font-bold text-slate-700">${avgRating}</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">${p.name}</h3>
-                    <p class="text-slate-500 text-sm line-clamp-2 mb-4">${p.description || ''}</p>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">${
+                      p.name
+                    }</h3>
+                    <p class="text-slate-500 text-sm line-clamp-2 mb-4">${
+                      p.description || ""
+                    }</p>
                     <div class="flex items-center justify-between pt-4 border-t border-slate-100">
                         <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 text-xs font-bold">${(p.username || "U").charAt(0).toUpperCase()}</div>
-                            <span class="text-xs font-medium text-slate-500">${p.username || "Anonim"}</span>
+                            <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 text-xs font-bold">${(
+                              p.username || "U"
+                            )
+                              .charAt(0)
+                              .toUpperCase()}</div>
+                            <span class="text-xs font-medium text-slate-500">${
+                              p.username || "Anonim"
+                            }</span>
                         </div>
-                        <button class="${compareBtnRequest}" onclick="event.stopPropagation(); app.toggleCompare(${p.id})">
+                        <button class="${compareBtnRequest}" onclick="event.stopPropagation(); app.toggleCompare(${
+      p.id
+    })">
                             ${compareBtnText}
                         </button>
                     </div>
@@ -864,46 +943,46 @@ const app = {
         form.category.value = p.category;
         form.image.value = p.image;
         form.desc.value = p.description;
-      // Pre-select rating if editing (not storing it currently in products table properly, but if we did/could)
+        // Pre-select rating if editing (not storing it currently in products table properly, but if we did/could)
+      });
+    }
+
+    // Star Rating Logic
+    const stars = document.querySelectorAll("#form-star-rating i");
+    const ratingInput = document.getElementById("rating-input");
+
+    stars.forEach((star) => {
+      star.addEventListener("click", () => {
+        const val = parseInt(star.dataset.value);
+        ratingInput.value = val;
+        updateStars(val);
+      });
+
+      star.addEventListener("mouseenter", () => {
+        updateStars(parseInt(star.dataset.value), true);
+      });
+
+      star.addEventListener("mouseleave", () => {
+        updateStars(parseInt(ratingInput.value || 0));
+      });
     });
-  }
 
-  // Star Rating Logic
-  const stars = document.querySelectorAll('#form-star-rating i');
-  const ratingInput = document.getElementById('rating-input');
+    function updateStars(val, isHover = false) {
+      stars.forEach((s) => {
+        const sVal = parseInt(s.dataset.value);
+        if (sVal <= val) {
+          s.classList.add("text-orange-400");
+          if (isHover) s.classList.add("text-orange-300"); // Lighter on hover
+        } else {
+          s.classList.remove("text-orange-400");
+          s.classList.remove("text-orange-300");
+        }
+      });
+    }
 
-  stars.forEach(star => {
-      star.addEventListener('click', () => {
-          const val = parseInt(star.dataset.value);
-          ratingInput.value = val;
-          updateStars(val);
-      });
-      
-      star.addEventListener('mouseenter', () => {
-           updateStars(parseInt(star.dataset.value), true);
-      });
-      
-      star.addEventListener('mouseleave', () => {
-           updateStars(parseInt(ratingInput.value || 0));
-      });
-  });
-
-  function updateStars(val, isHover = false) {
-      stars.forEach(s => {
-          const sVal = parseInt(s.dataset.value);
-          if (sVal <= val) {
-              s.classList.add('text-orange-400');
-              if (isHover) s.classList.add('text-orange-300'); // Lighter on hover
-          } else {
-              s.classList.remove('text-orange-400');
-              s.classList.remove('text-orange-300');
-          }
-      });
-  }
-
-  form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const ratingVal = document.getElementById('rating-input').value; // Explicitly get value
+      const ratingVal = document.getElementById("rating-input").value; // Explicitly get value
       const payload = {
         name: form.name.value,
         category: form.category.value,
@@ -920,99 +999,100 @@ const app = {
     });
   },
   initNews() {
-  const container = document.getElementById("news-container");
-  if (!container) return;
-  this.changeTheme("Haberler");
-  
-  api.get("/news").then((news) => {
-    // URL'den kategori parametresini al
-    const params = new URLSearchParams(window.location.search);
-    const urlCat = params.get('cat');
-    
-    // Filtreleme fonksiyonu (UI oluşturmadan sadece içeriği filtreler)
-    const renderNews = (cat) => {
-      const filtered =
-        !cat || cat === "Tümü"
-          ? news
-          : news.filter((n) => (n.category || "Genel") === cat);
-          
-      container.innerHTML = filtered.length
-        ? filtered
-            .map(
-              (item) =>
-                `<a href="${
-                  item.url
-                }" target="_blank" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group block cursor-pointer"><div class="h-48 bg-gray-200 relative overflow-hidden">${
-                  item.image
-                    ? `<img src="${item.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">`
-                    : ""
-                }<span class="absolute top-4 left-4 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">${
-                  item.category || "Teknoloji"
-                }</span></div><div class="p-6 flex flex-col flex-1"><h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">${
-                  item.title
-                }</h3><p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">${
-                  item.summary || ""
-                }</p><div class="flex justify-between text-xs text-gray-400 border-t pt-4 mt-auto"><span>${
-                  item.source || "TechReview"
-                }</span><span>${new Date(item.createdAt).toLocaleDateString(
-                  "tr-TR"
-                )}</span></div></div></a>`
-            )
-            .join("")
-        : '<div class="col-span-full text-center py-20 text-gray-500">Bu kategoride haber yok.</div>';
-    };
-    
-    // Sayfa yüklendiğinde filtrele
-    renderNews(urlCat || "Tümü");
-    
-    // Global fonksiyonu güncelle (Sidebar için gerekirse)
-    window.filterNews = renderNews;
-  });
-},
+    const container = document.getElementById("news-container");
+    if (!container) return;
+    this.changeTheme("Haberler");
+
+    api.get("/news").then((news) => {
+      // URL'den kategori parametresini al
+      const params = new URLSearchParams(window.location.search);
+      const urlCat = params.get("cat");
+
+      // Filtreleme fonksiyonu (UI oluşturmadan sadece içeriği filtreler)
+      const renderNews = (cat) => {
+        const filtered =
+          !cat || cat === "Tümü"
+            ? news
+            : news.filter((n) => (n.category || "Genel") === cat);
+
+        container.innerHTML = filtered.length
+          ? filtered
+              .map(
+                (item) =>
+                  `<a href="${
+                    item.url
+                  }" target="_blank" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group block cursor-pointer"><div class="h-48 bg-gray-200 relative overflow-hidden">${
+                    item.image
+                      ? `<img src="${item.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">`
+                      : ""
+                  }<span class="absolute top-4 left-4 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">${
+                    item.category || "Teknoloji"
+                  }</span></div><div class="p-6 flex flex-col flex-1"><h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">${
+                    item.title
+                  }</h3><p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">${
+                    item.summary || ""
+                  }</p><div class="flex justify-between text-xs text-gray-400 border-t pt-4 mt-auto"><span>${
+                    item.source || "TechReview"
+                  }</span><span>${new Date(item.createdAt).toLocaleDateString(
+                    "tr-TR"
+                  )}</span></div></div></a>`
+              )
+              .join("")
+          : '<div class="col-span-full text-center py-20 text-gray-500">Bu kategoride haber yok.</div>';
+      };
+
+      // Sayfa yüklendiğinde filtrele
+      renderNews(urlCat || "Tümü");
+
+      // Global fonksiyonu güncelle (Sidebar için gerekirse)
+      window.filterNews = renderNews;
+    });
+  },
   initForum() {
     const container = document.getElementById("topics-container");
     if (!container) return;
     this.changeTheme("Forum");
-    
+
     // Search logic
     const searchInput = document.getElementById("forum-search");
-    
+
     api.get("/forum/topics").then((topics) => {
-        window.allTopics = topics; // Store for filtering
+      window.allTopics = topics; // Store for filtering
 
-        const renderTopics = (list) => {
-            container.innerHTML = list.length
-            ? list
-                .map(
+      const renderTopics = (list) => {
+        container.innerHTML = list.length
+          ? list
+              .map(
                 (topic) =>
-                    `<div class="p-6 hover:bg-blue-50/50 transition-colors cursor-pointer group border-b border-gray-100 last:border-0" onclick="window.location.href='forum-detail.html?id=${
+                  `<div class="p-6 hover:bg-blue-50/50 transition-colors cursor-pointer group border-b border-gray-100 last:border-0" onclick="window.location.href='forum-detail.html?id=${
                     topic.id
-                    }'"><div class="flex items-start justify-between gap-4"><div class="flex-1"><span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">${
+                  }'"><div class="flex items-start justify-between gap-4"><div class="flex-1"><span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">${
                     topic.category || "Genel"
-                    }</span><h3 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-1">${
+                  }</span><h3 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-1">${
                     topic.title
-                    }</h3><p class="text-sm text-gray-600">Yazar: <span class="font-medium">${
+                  }</h3><p class="text-sm text-gray-600">Yazar: <span class="font-medium">${
                     topic.username
-                    }</span></p></div><i class="fa-solid fa-chevron-right text-gray-300"></i></div></div>`
-                )
-                .join("")
-            : '<div class="text-center py-10 text-gray-500">Konu bulunamadı.</div>';
-        };
+                  }</span></p></div><i class="fa-solid fa-chevron-right text-gray-300"></i></div></div>`
+              )
+              .join("")
+          : '<div class="text-center py-10 text-gray-500">Konu bulunamadı.</div>';
+      };
 
-        // Initial render
-        renderTopics(topics);
+      // Initial render
+      renderTopics(topics);
 
-        // Filter on input
-        if (searchInput) {
-            searchInput.addEventListener("input", (e) => {
-                const term = e.target.value.toLowerCase();
-                const filtered = topics.filter(t => 
-                    t.title.toLowerCase().includes(term) || 
-                    (t.category && t.category.toLowerCase().includes(term))
-                );
-                renderTopics(filtered);
-            });
-        }
+      // Filter on input
+      if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+          const term = e.target.value.toLowerCase();
+          const filtered = topics.filter(
+            (t) =>
+              t.title.toLowerCase().includes(term) ||
+              (t.category && t.category.toLowerCase().includes(term))
+          );
+          renderTopics(filtered);
+        });
+      }
     });
   },
   async initProductDetail() {
@@ -1031,30 +1111,48 @@ const app = {
                 <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                     <div class="h-[600px] relative bg-gray-900 group overflow-hidden">
                         <!-- Blurred Background (Ambience) -->
-                        <img src="${product.image}" class="absolute inset-0 w-full h-full object-cover opacity-30 blur-2xl scale-110" onerror="this.src='https://placehold.co/800x400?text=Resim+Yok'">
+                        <img src="${
+                          product.image
+                        }" class="absolute inset-0 w-full h-full object-cover opacity-30 blur-2xl scale-110" onerror="this.src='https://placehold.co/800x400?text=Resim+Yok'">
                         
                         <!-- Main Image (Smart Fit) -->
-                        <img src="${product.image}" class="relative w-full h-full object-contain z-10 transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/800x400?text=Resim+Yok'">
+                        <img src="${
+                          product.image
+                        }" class="relative w-full h-full object-contain z-10 transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/800x400?text=Resim+Yok'">
                         
                         <!-- Gradient Overlay -->
                         <div class="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-black/90 via-black/20 to-transparent z-20 pointer-events-none"></div>
                         
                         <!-- Text Content -->
                         <div class="absolute bottom-10 left-10 text-white z-30 drop-shadow-lg">
-                            <span class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase mb-3 inline-block shadow-lg tracking-wider" style="background-color: ${theme.primary}">${product.category}</span>
-                            <h1 class="text-5xl font-black leading-tight mb-2 tracking-tight">${product.name}</h1>
+                            <span class="px-4 py-1.5 rounded-lg text-xs font-bold uppercase mb-3 inline-block shadow-lg tracking-wider" style="background-color: ${
+                              theme.primary
+                            }">${product.category}</span>
+                            <h1 class="text-5xl font-black leading-tight mb-2 tracking-tight">${
+                              product.name
+                            }</h1>
                             <div class="flex items-center gap-4 mb-4">
                                 <div class="flex items-center bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
                                     <div class="flex text-yellow-400 text-lg mr-2 filter drop-shadow-sm">
-                                        ${this.generateStarRating(product.avgRating)}
+                                        ${this.generateStarRating(
+                                          product.avgRating
+                                        )}
                                     </div>
-                                    <span class="font-bold text-white text-lg">${product.avgRating ? Number(product.avgRating).toFixed(1) : "0.0"}</span>
+                                    <span class="font-bold text-white text-lg">${
+                                      product.avgRating
+                                        ? Number(product.avgRating).toFixed(1)
+                                        : "0.0"
+                                    }</span>
                                 </div>
                             </div>
                             <p class="text-sm font-medium opacity-95 flex items-center gap-2">
-                                <span class="bg-white/20 px-2 py-1 rounded-full"><i class="fa-regular fa-user"></i> ${product.username || "Anonim"}</span>
+                                <span class="bg-white/20 px-2 py-1 rounded-full"><i class="fa-regular fa-user"></i> ${
+                                  product.username || "Anonim"
+                                }</span>
                                 <span class="w-1 h-1 bg-white rounded-full"></span>
-                                <span>${new Date(product.createdAt).toLocaleDateString("tr-TR")}</span>
+                                <span>${new Date(
+                                  product.createdAt
+                                ).toLocaleDateString("tr-TR")}</span>
                             </p>
                         </div>
                     </div>
@@ -1066,29 +1164,43 @@ const app = {
 
                     <!-- Review Form (Merged Inside Card) -->
                   <div class="border-t border-gray-100 bg-gray-50/50 p-8 sm:p-12">
-                      ${this.currentUser ? `
+                      ${
+                        this.currentUser
+                          ? `
                           <form id="review-form">
                               <h4 class="font-bold text-gray-800 mb-3 text-lg">Yorum Yap ve Puan Ver</h4>
                               
                               <div class="mb-4">
                                   <label class="block text-sm font-bold text-gray-700 mb-2">Puanınız (1-5)</label>
                                   <div class="flex gap-1 text-2xl text-gray-300 cursor-pointer" id="star-rating">
-                                      ${Array(5).fill(0).map((_, i) => `<i class="fa-solid fa-star transition-colors hover:scale-110" data-value="${i + 1}"></i>`).join('')}
+                                      ${Array(5)
+                                        .fill(0)
+                                        .map(
+                                          (_, i) =>
+                                            `<i class="fa-solid fa-star transition-colors hover:scale-110" data-value="${
+                                              i + 1
+                                            }"></i>`
+                                        )
+                                        .join("")}
                                   </div>
                                   <input type="hidden" name="rating" id="rating-input" required>
                               </div>
 
                               <textarea name="content" class="w-full border border-gray-200 p-4 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none resize-none bg-white" rows="3" placeholder="Bu ürün hakkında ne düşünüyorsun?" required></textarea>
                               <div class="flex justify-end">
-                                  <button class="text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95" style="background-color: ${theme.primary}">Gönder</button>
+                                  <button class="text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95" style="background-color: ${
+                                    theme.primary
+                                  }">Gönder</button>
                               </div>
                           </form>
-                      ` : `
+                      `
+                          : `
                           <div class="text-center">
                               <p class="text-blue-900 font-medium mb-3">Yorum yapmak için giriş yapmalısın.</p>
                               <a href="login.html" class="inline-block text-white bg-blue-600 px-6 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-md">Giriş Yap</a>
                           </div>
-                      `}
+                      `
+                      }
                   </div>
               </div>
           </div>
@@ -1098,11 +1210,17 @@ const app = {
               <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 sticky top-24">
                   <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
                         <i class="fa-regular fa-comments text-gray-400"></i>
-                        Yorumlar <span class="text-sm bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">${reviews.length}</span>
+                        Yorumlar <span class="text-sm bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">${
+                          reviews.length
+                        }</span>
                   </h3>
                   
                   <div class="space-y-4 max-h-[800px] overflow-y-auto custom-scrollbar pr-2">
-                      ${reviews.length > 0 ? reviews.map(r => `
+                      ${
+                        reviews.length > 0
+                          ? reviews
+                              .map(
+                                (r) => `
                         <div class="border-b border-gray-50 last:border-0 pb-4 last:pb-0">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
@@ -1110,82 +1228,109 @@ const app = {
                                         ${r.username.charAt(0).toUpperCase()}
                                     </div>
                                     <div>
-                                        <span class="font-bold text-sm text-gray-900 block leading-tight">${r.username}</span>
-                                        <span class="text-[10px] text-gray-400 block">${new Date(r.createdAt).toLocaleDateString('tr-TR')}</span>
+                                        <span class="font-bold text-sm text-gray-900 block leading-tight">${
+                                          r.username
+                                        }</span>
+                                        <span class="text-[10px] text-gray-400 block">${new Date(
+                                          r.createdAt
+                                        ).toLocaleDateString("tr-TR")}</span>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1 text-xs">
                                      ${this.generateStarRating(r.rating || 0)}
-                                     <span class="ml-1 text-gray-500 font-bold">(${r.rating || 0})</span>
+                                     <span class="ml-1 text-gray-500 font-bold">(${
+                                       r.rating || 0
+                                     })</span>
                                 </div>
                             </div>
-                            <p class="text-gray-600 text-sm leading-relaxed">${r.content}</p>
+                            <p class="text-gray-600 text-sm leading-relaxed">${
+                              r.content
+                            }</p>
                         </div>
-                      `).join('') : '<p class="text-center text-gray-400 py-4 italic">Henüz yorum yapılmamış.</p>'}
+                      `
+                              )
+                              .join("")
+                          : '<p class="text-center text-gray-400 py-4 italic">Henüz yorum yapılmamış.</p>'
+                      }
                   </div>
               </div>
           </div>
       </div>
     `;
 
-    // Initialize Star Rating Logic
-    if (this.currentUser) {
-        const stars = document.querySelectorAll('#star-rating i');
-        const ratingInput = document.getElementById('rating-input');
-        
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                const val = parseInt(star.dataset.value);
-                ratingInput.value = val;
-                
-                stars.forEach(s => {
-                    const sVal = parseInt(s.dataset.value);
-                    if (sVal <= val) s.classList.add('text-orange-400');
-                    else s.classList.remove('text-orange-400');
-                });
-            });
-            
-            // Hover effect
-            star.addEventListener('mouseenter', () => {
-                 const val = parseInt(star.dataset.value);
-                 stars.forEach(s => {
-                    if (parseInt(s.dataset.value) <= val) s.classList.add('text-orange-300');
-                 });
-            });
-            
-             star.addEventListener('mouseleave', () => {
-                 stars.forEach(s => s.classList.remove('text-orange-300'));
-            });
+      // Initialize Star Rating Logic
+      if (this.currentUser) {
+        const stars = document.querySelectorAll("#star-rating i");
+        const ratingInput = document.getElementById("rating-input");
+
+        function updateStarDisplay(val, isHover = false) {
+          stars.forEach((s) => {
+            const sVal = parseInt(s.dataset.value);
+            if (sVal <= val) {
+              s.classList.add("text-orange-400");
+              if (isHover) s.classList.add("text-yellow-300");
+            } else {
+              s.classList.remove("text-orange-400");
+              s.classList.remove("text-yellow-300");
+            }
+          });
+        }
+
+        stars.forEach((star) => {
+          star.addEventListener("click", () => {
+            const val = parseInt(star.dataset.value);
+            ratingInput.value = val;
+            updateStarDisplay(val);
+          });
+
+          // Hover effect
+          star.addEventListener("mouseenter", () => {
+            const val = parseInt(star.dataset.value);
+            updateStarDisplay(val, true);
+          });
+
+          star.addEventListener("mouseleave", () => {
+            const val = parseInt(ratingInput.value || 0);
+            updateStarDisplay(val);
+          });
         });
 
-        document.getElementById("review-form").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const rating = ratingInput.value;
-          if (!rating) return alert("Lütfen bir puan verin!");
-          
-          await api.post("/reviews", {
-            productId: id,
-            userId: this.currentUser.id,
-            username: this.currentUser.username,
-            content: e.target.content.value,
-            rating: parseInt(rating)
+        document
+          .getElementById("review-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const rating = ratingInput.value;
+            if (!rating) return alert("Lütfen bir puan verin!");
+
+            try {
+              await api.post("/reviews", {
+                productId: id,
+                userId: this.currentUser.id,
+                username: this.currentUser.username,
+                content: e.target.content.value,
+                rating: parseInt(rating),
+              });
+
+              // Clear form and reset rating display
+              e.target.reset();
+              ratingInput.value = "";
+              stars.forEach((s) =>
+                s.classList.remove("text-orange-400", "text-orange-300")
+              );
+
+              alert("Yorumunuz kaydedildi!");
+              // Smoother UX: Scroll to top to see updated score, then re-render
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              setTimeout(() => this.initProductDetail(), 500); // Small delay for scroll
+            } catch (err) {
+              alert("Yorum kaydedilirken hata oluştu: " + err.message);
+            }
           });
-          await api.post("/reviews", {
-            productId: id,
-            userId: this.currentUser.id,
-            username: this.currentUser.username,
-            content: e.target.content.value,
-            rating: parseInt(rating)
-          });
-          
-          // Smoother UX: Scroll to top to see updated score, then re-render
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => this.initProductDetail(), 500); // Small delay for scroll
-        });
-    }
+      }
     } catch (e) {
       console.error(e);
-      document.getElementById("detail-container").innerHTML = "<div class='text-center py-20 text-red-500'>Hata oluştu.</div>";
+      document.getElementById("detail-container").innerHTML =
+        "<div class='text-center py-20 text-red-500'>Hata oluştu.</div>";
     }
   },
   async initForumDetail() {
@@ -1245,17 +1390,17 @@ const app = {
     if (!this.currentUser) return (window.location.href = "login.html");
     try {
       // Show loading state implicitly by initial HTML "Yükleniyor..."
-      
+
       const details = await api.get(`/users/${this.currentUser.id}`);
       const products = await api.get(`/users/${this.currentUser.id}/products`); // Removes || [] to handle error in catch if needed, but api.get returns [] on error anyway.
       const reviews = await api.get(`/users/${this.currentUser.id}/reviews`);
 
       // Update Header
       const usernameEl = document.getElementById("profile-username");
-      if(usernameEl) usernameEl.innerText = this.currentUser.username;
-      
+      if (usernameEl) usernameEl.innerText = this.currentUser.username;
+
       const emailEl = document.getElementById("profile-email");
-      if(emailEl) emailEl.innerText = this.currentUser.email;
+      if (emailEl) emailEl.innerText = this.currentUser.email;
 
       // Update Form
       const form = document.getElementById("profile-form");
@@ -1263,11 +1408,11 @@ const app = {
         form.bio.value = (details && details.bio) || "";
         form.age.value = (details && details.age) || "";
         form.gender.value = (details && details.gender) || "";
-        
+
         // Remove old listener to prevent duplicates (though typical usage is page reload)
         const newForm = form.cloneNode(true);
         form.parentNode.replaceChild(newForm, form);
-        
+
         newForm.addEventListener("submit", async (e) => {
           e.preventDefault();
           await api.put(`/users/${this.currentUser.id}`, {
@@ -1281,28 +1426,33 @@ const app = {
 
       // Update Stats
       const statProducts = document.getElementById("stat-products");
-      if(statProducts && products) statProducts.innerText = products.length;
-    
-      const statReviews = document.getElementById("stat-reviews");
-      if(statReviews && reviews) statReviews.innerText = reviews.length;
+      if (statProducts && products) statProducts.innerText = products.length;
 
-    // Calculate & Update Average Score
-    const statScore = document.getElementById("stat-score");
-    if (statScore) {
+      const statReviews = document.getElementById("stat-reviews");
+      if (statReviews && reviews) statReviews.innerText = reviews.length;
+
+      // Calculate & Update Average Score
+      const statScore = document.getElementById("stat-score");
+      if (statScore) {
         if (reviews && reviews.length > 0) {
-          const total = reviews.reduce((acc, r) => acc + parseFloat(r.rating || 0), 0);
+          const total = reviews.reduce(
+            (acc, r) => acc + parseFloat(r.rating || 0),
+            0
+          );
           const avg = total / reviews.length;
           statScore.innerText = avg.toFixed(1);
-      } else {
-            statScore.innerText = "0.0";
+        } else {
+          statScore.innerText = "0.0";
         }
-    }
+      }
 
       // Render Products
       const prodList = document.getElementById("my-products-list");
       if (prodList) {
         if (products && products.length > 0) {
-           prodList.innerHTML = products.map(p => 
+          prodList.innerHTML = products
+            .map(
+              (p) =>
                 `<div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-10 h-10 bg-white rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-100 text-gray-400">
@@ -1319,9 +1469,11 @@ const app = {
                         </button>
                     </div>
                 </div>`
-            ).join("");
+            )
+            .join("");
         } else {
-            prodList.innerHTML = '<div class="col-span-full text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">Henüz ürün eklemediniz.</div>';
+          prodList.innerHTML =
+            '<div class="col-span-full text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">Henüz ürün eklemediniz.</div>';
         }
       }
 
@@ -1329,32 +1481,43 @@ const app = {
       const revList = document.getElementById("my-reviews-list");
       if (revList) {
         if (reviews && reviews.length > 0) {
-            revList.innerHTML = reviews.map(r => 
+          revList.innerHTML = reviews
+            .map(
+              (r) =>
                 `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group transition-all hover:bg-white hover:shadow-sm">
-                    <button onclick="app.deleteReview(${r.id})" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all opacity-0 group-hover:opacity-100" title="Sil">
+                    <button onclick="app.deleteReview(${
+                      r.id
+                    })" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all opacity-0 group-hover:opacity-100" title="Sil">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                              <span class="text-xs font-bold bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Ürün</span>
-                             <span class="font-bold text-sm text-gray-800">${r.productName || 'Bilinmeyen Ürün'}</span>
+                             <span class="font-bold text-sm text-gray-800">${
+                               r.productName || "Bilinmeyen Ürün"
+                             }</span>
                         </div>
                         <div class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg flex items-center gap-1">
-                             ${this.generateStarRating(r.rating || 0)} <span class="text-gray-600 ml-1">${r.rating || 0}/5</span>
+                             ${this.generateStarRating(
+                               r.rating || 0
+                             )} <span class="text-gray-600 ml-1">${
+                  r.rating || 0
+                }/5</span>
                         </div>
                     </div>
                     <p class="text-sm text-gray-600 italic">"${r.content}"</p>
                 </div>`
-            ).join("");
+            )
+            .join("");
         } else {
-            revList.innerHTML = '<div class="text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">Henüz değerlendirme yapmadınız.</div>';
+          revList.innerHTML =
+            '<div class="text-center py-6 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">Henüz değerlendirme yapmadınız.</div>';
         }
       }
-      
     } catch (e) {
       console.error("Profile load error:", e);
       alert("Profil bilgileri yüklenirken bir hata oluştu: " + e.message);
-      
+
       // Clear loading states
       document.getElementById("profile-username").innerText = "Hata!";
     }

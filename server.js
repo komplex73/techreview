@@ -8,9 +8,9 @@ const app = express();
 const PORT = 3000;
 
 // Ensure user_dbs directory exists
-const USER_DB_DIR = path.join(__dirname, 'user_dbs');
-if (!fs.existsSync(USER_DB_DIR)){
-    fs.mkdirSync(USER_DB_DIR);
+const USER_DB_DIR = path.join(__dirname, "user_dbs");
+if (!fs.existsSync(USER_DB_DIR)) {
+  fs.mkdirSync(USER_DB_DIR);
 }
 
 app.use(cors());
@@ -60,7 +60,7 @@ function initDb() {
           url TEXT, 
           createdAt TEXT
       )`,
-      function(err) {
+      function (err) {
         // Sadece tablo boşsa verileri ekle
         if (!err) {
           db.get("SELECT COUNT(*) as count FROM news", (err, row) => {
@@ -87,9 +87,6 @@ function seedNews() {
       category: "Yapay Zeka",
       source: "Webtekno",
       url: "https://www.webtekno.com/haber/yapay-zeka",
-
-
-      
     },
     {
       title: "Apple Vision Pro İncelemesi: Gelecek Burada mı?",
@@ -178,7 +175,8 @@ app.post("/api/users/:id/apply", (req, res) => {
   );
 });
 app.get("/api/products", (req, res) =>
-  db.all(`
+  db.all(
+    `
     SELECT products.*, 
     AVG(reviews.rating) as avgRating, 
     COUNT(reviews.id) as reviewCount 
@@ -186,12 +184,14 @@ app.get("/api/products", (req, res) =>
     LEFT JOIN reviews ON products.id = reviews.productId 
     GROUP BY products.id 
     ORDER BY products.createdAt DESC
-    `, [], (err, rows) =>
-    res.json(rows)
+    `,
+    [],
+    (err, rows) => res.json(rows)
   )
 );
 app.get("/api/products/:id", (req, res) =>
-  db.get(`
+  db.get(
+    `
     SELECT products.*, 
     AVG(reviews.rating) as avgRating, 
     COUNT(reviews.id) as reviewCount 
@@ -199,33 +199,42 @@ app.get("/api/products/:id", (req, res) =>
     LEFT JOIN reviews ON products.id = reviews.productId 
     WHERE products.id = ?
     GROUP BY products.id
-    `, [req.params.id], (err, row) =>
-    res.json(row)
+    `,
+    [req.params.id],
+    (err, row) => res.json(row)
   )
 );
 app.post("/api/products", (req, res) => {
-  const { name, category, description, image, createdBy, username, rating } = req.body;
+  const { name, category, description, image, createdBy, username, rating } =
+    req.body;
   const createdAt = new Date().toISOString();
-  
+
   db.run(
     `INSERT INTO products (name, category, description, image, createdAt, createdBy, username) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [name, category, description, image, createdAt, createdBy, username],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
-      
+
       const newProductId = this.lastID;
-      
+
       // Automatically create a review for the creator
       if (description || rating) {
-          db.run(
-            `INSERT INTO reviews (productId, userId, username, content, rating, createdAt) VALUES (?, ?, ?, ?, ?, ?)`,
-            [newProductId, createdBy, username, description, rating || 0, createdAt],
-            function(err) {
-                 if (err) console.error("Auto-review creation failed:", err);
-            }
-          );
+        db.run(
+          `INSERT INTO reviews (productId, userId, username, content, rating, createdAt) VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            newProductId,
+            createdBy,
+            username,
+            description,
+            rating || 0,
+            createdAt,
+          ],
+          function (err) {
+            if (err) console.error("Auto-review creation failed:", err);
+          }
+        );
       }
-      
+
       res.json({ id: newProductId });
     }
   );
@@ -233,16 +242,16 @@ app.post("/api/products", (req, res) => {
 app.delete("/api/products/:id", (req, res) => {
   const id = req.params.id;
   db.run("DELETE FROM reviews WHERE productId = ?", [id], () =>
-    db.run("DELETE FROM products WHERE id = ?", [id], function(err) {
+    db.run("DELETE FROM products WHERE id = ?", [id], function (err) {
       res.json({ deleted: this.changes });
     })
   );
 });
 app.get("/api/reviews/:productId", (req, res) =>
   db.all(
-    "SELECT * FROM reviews WHERE productId = ? ORDER BY createdAt DESC",
+    "SELECT id, productId, userId, username, rating, content, createdAt FROM reviews WHERE productId = ? ORDER BY createdAt DESC",
     [req.params.productId],
-    (err, rows) => res.json(rows)
+    (err, rows) => res.json(rows || [])
   )
 );
 app.post("/api/reviews", (req, res) => {
@@ -250,7 +259,14 @@ app.post("/api/reviews", (req, res) => {
   const createdAt = new Date().toISOString();
   db.run(
     `INSERT INTO reviews (productId, userId, username, content, rating, createdAt) VALUES (?, ?, ?, ?, ?, ?)`,
-    [productId, userId, username, content, (rating && rating > 0) ? rating : 5, createdAt],
+    [
+      productId,
+      userId,
+      username,
+      content,
+      rating && rating > 0 ? rating : 5,
+      createdAt,
+    ],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: this.lastID });
@@ -264,9 +280,13 @@ app.delete("/api/reviews/:id", (req, res) =>
 );
 app.get("/api/users/:userId/reviews", (req, res) => {
   db.all(
-    `SELECT reviews.*, products.name as productName FROM reviews JOIN products ON reviews.productId = products.id WHERE reviews.userId = ? ORDER BY reviews.createdAt DESC`,
+    `SELECT reviews.id, reviews.rating, reviews.content, reviews.createdAt, reviews.productId, products.name as productName 
+     FROM reviews 
+     JOIN products ON reviews.productId = products.id 
+     WHERE reviews.userId = ? 
+     ORDER BY reviews.createdAt DESC`,
     [req.params.userId],
-    (err, rows) => res.json(rows)
+    (err, rows) => res.json(rows || [])
   );
 });
 app.get("/api/users/:userId/products", (req, res) => {
@@ -284,32 +304,41 @@ app.get("/api/users/:userId/products", (req, res) => {
 });
 app.put("/api/products/:id", (req, res) => {
   const { name, category, description, image, rating } = req.body;
-  
+
   // 1. Update Product Info
   db.run(
     "UPDATE products SET name = ?, category = ?, description = ?, image = ? WHERE id = ?",
     [name, category, description, image, req.params.id],
-    function(err) {
-        if(err) return res.status(500).json({error: err.message});
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
 
-        // 2. Update the Creator's Review (if rating is provided)
-        // We find the review linked to this product AND the creator (to avoid changing others' reviews)
-        // Since we don't pass userId in PUT body for security ideally, we first need to know WHO created it or just update the review matches product+creator.
-        // Simplified approach: Update the review that belongs to this product's creator.
-        
-        // First get the product to find createdBy
-        db.get("SELECT createdBy FROM products WHERE id = ?", [req.params.id], (err, product) => {
-             if(product && rating) {
-                 db.run("UPDATE reviews SET rating = ?, content = ? WHERE productId = ? AND userId = ?", 
-                     [rating, description, req.params.id, product.createdBy],
-                     (err) => {
-                         if(err) console.error("Failed to update linked review during product edit", err);
-                     }
-                 );
-             }
-        });
+      // 2. Update the Creator's Review (if rating is provided)
+      // We find the review linked to this product AND the creator (to avoid changing others' reviews)
+      // Since we don't pass userId in PUT body for security ideally, we first need to know WHO created it or just update the review matches product+creator.
+      // Simplified approach: Update the review that belongs to this product's creator.
 
-        res.json({ updated: true });
+      // First get the product to find createdBy
+      db.get(
+        "SELECT createdBy FROM products WHERE id = ?",
+        [req.params.id],
+        (err, product) => {
+          if (product && rating) {
+            db.run(
+              "UPDATE reviews SET rating = ?, content = ? WHERE productId = ? AND userId = ?",
+              [rating, description, req.params.id, product.createdBy],
+              (err) => {
+                if (err)
+                  console.error(
+                    "Failed to update linked review during product edit",
+                    err
+                  );
+              }
+            );
+          }
+        }
+      );
+
+      res.json({ updated: true });
     }
   );
 });
@@ -380,28 +409,29 @@ app.post("/api/auth/register", (req, res) => {
     [username, email, password, createdAt],
     function (err) {
       if (err) return res.status(400).json({ error: "Kayıt hatası." });
-      
+
       const newUserId = this.lastID;
 
       // Create User-Specific Database
       const userDbPath = path.join(USER_DB_DIR, `${username}.sqlite`);
       const userDb = new sqlite3.Database(userDbPath, (err) => {
         if (err) {
-            console.error("Failed to create user DB:", err);
+          console.error("Failed to create user DB:", err);
         } else {
-            console.log(`Created private DB for ${username}`);
-            userDb.serialize(() => {
-                userDb.run(`CREATE TABLE IF NOT EXISTS user_logs (
+          console.log(`Created private DB for ${username}`);
+          userDb.serialize(() => {
+            userDb.run(`CREATE TABLE IF NOT EXISTS user_logs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     action TEXT,
                     details TEXT,
                     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
                 )`);
-                userDb.run(`INSERT INTO user_logs (action, details) VALUES (?, ?)`, 
-                    ['REGISTER', 'User account created successfully']
-                );
-            });
-            userDb.close();
+            userDb.run(
+              `INSERT INTO user_logs (action, details) VALUES (?, ?)`,
+              ["REGISTER", "User account created successfully"]
+            );
+          });
+          userDb.close();
         }
       });
 
