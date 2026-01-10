@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol - TechReview</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body id="page-register" class="bg-gray-50 flex flex-col min-h-screen relative overflow-hidden">
+    
+    <!-- Background Decor -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+        <div class="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-purple-600/10 to-transparent"></div>
+        <div class="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-blue-600/10 to-transparent"></div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-grow flex items-center justify-center relative z-10 w-full px-4 py-12">
+        <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl border border-gray-100">
+            
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center text-white relative overflow-hidden">
+                <div class="absolute top-0 left-0 p-4 opacity-10">
+                    <i class="fa-solid fa-user-plus text-8xl"></i>
+                </div>
+                <a href="index.html" class="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfa
+                </a>
+                
+                <div class="mt-4 mb-2 inline-block p-3 rounded-full bg-white/10 backdrop-blur-sm">
+                     <i class="fa-solid fa-rocket text-2xl text-purple-400"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-1">Aramıza Katıl</h2>
+                <p class="text-gray-400 text-sm">TechReview ailesine hoşgeldin</p>
+            </div>
+
+            <!-- Form Section -->
+            <div class="p-8">
+                <form id="register-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1 ml-1">Kullanıcı Adı</label>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    placeholder="Kullanıcı Adı" 
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium text-gray-700 placeholder-gray-400"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1 ml-1">E-Posta</label>
+                            <div class="relative">
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    placeholder="E-Posta Adresi" 
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium text-gray-700 placeholder-gray-400"
+                                    required
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 ml-1">Şifre</label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                placeholder="Güvenli bir şifre belirleyin" 
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium text-gray-700 placeholder-gray-400"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-5 mt-2">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-purple-100 text-purple-600 p-1.5 rounded-lg text-xs">
+                                <i class="fa-solid fa-address-card"></i>
+                            </span>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
+                                Profil Bilgileri (İsteğe Bağlı)
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                 <input 
+                                    type="number" 
+                                    id="age" 
+                                    placeholder="Yaş" 
+                                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm transition-all"
+                                >
+                            </div>
+                            <div>
+                                <select 
+                                    id="gender" 
+                                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm transition-all text-gray-600"
+                                >
+                                    <option value="">Cinsiyet</option>
+                                    <option value="Erkek">Erkek</option>
+                                    <option value="Kadın">Kadın</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <textarea 
+                                id="bio" 
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm transition-all resize-none"
+                                rows="2" 
+                                placeholder="Kendinden kısaca bahset..."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-gray-900 to-gray-800 hover:from-black hover:to-gray-900 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-gray-500/30 transform transition-all active:scale-[0.98] mt-2">
+                        <i class="fa-solid fa-user-plus mr-2"></i> Hesap Oluştur
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-sm text-gray-600">
+                        Zaten üye misiniz? 
+                        <a href="login.html" class="text-blue-600 font-bold hover:text-blue-700 ml-1 transition-colors">
+                            Giriş Yap
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

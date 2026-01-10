@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Forum - TechReview</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body id="page-forum" class="bg-gray-50">
+    <div id="navbar-placeholder"></div>
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-black text-indigo-900">Tartışma Forumu</h1>
+        <a
+          href="topic-form.html"
+          onclick="alert('Yakında...'); return false;"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow"
+          >+ Konu Aç</a
+        >
+      </div>
+
+      <!-- Arama Kutusu -->
+      <div class="mb-8 max-w-xl">
+        <div class="relative">
+          <input
+            type="text"
+            id="forum-search"
+            placeholder="Başlıklarda ara..."
+            class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium text-gray-700"
+          />
+          <i
+            class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          ></i>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
+      >
+        <div id="topics-container" class="divide-y divide-gray-100">
+          <div class="p-12 text-center text-gray-500">Yükleniyor...</div>
+        </div>
+      </div>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
