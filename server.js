@@ -175,6 +175,17 @@ app.post("/api/users/:id/apply", (req, res) => {
   );
 });
 
+// GET all users (Admin only)
+app.get("/api/users", (req, res) => {
+  db.all("SELECT id, username, email, role, createdAt FROM users ORDER BY id DESC", [], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
 // DELETE account - cascade delete all user data
 app.delete("/api/users/:id", (req, res) => {
   const userId = req.params.id;

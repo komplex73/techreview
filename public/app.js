@@ -1758,6 +1758,81 @@ const app = {
       const emailEl = document.getElementById("profile-email");
       if (emailEl) emailEl.innerText = this.currentUser.email;
 
+      // ADMIN ONLY: User List
+      if (this.currentUser.role === 'admin') {
+        try {
+          const users = await api.get('/users');
+          const roleBadge = document.getElementById("profile-role-badge");
+          if (roleBadge) {
+            roleBadge.innerHTML = '<span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-200"><i class="fa-solid fa-shield-halved mr-1"></i>Yönetici</span>';
+          }
+
+          const mainContainer = document.querySelector("#page-profile main");
+          if (mainContainer && users && users.length > 0) {
+             const adminSection = document.createElement("div");
+             adminSection.className = "mt-12 glass-card floating-card overflow-hidden";
+             adminSection.innerHTML = `
+               <div class="p-6 border-b border-white/50 flex justify-between items-center bg-gradient-to-r from-red-50/50 to-white/50">
+                  <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                     <span class="bg-red-100 text-red-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-users"></i></span>
+                     Kullanıcı Yönetimi
+                     <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">${users.length} Kayıt</span>
+                  </h2>
+               </div>
+               <div class="p-0 overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                     <thead>
+                        <tr class="text-xs font-bold text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                           <th class="p-4">ID</th>
+                           <th class="p-4">Kullanıcı</th>
+                           <th class="p-4">Email</th>
+                           <th class="p-4">Rol</th>
+                           <th class="p-4">Kayıt Tarihi</th>
+                        </tr>
+                     </thead>
+                     <tbody class="text-sm">
+                        ${users.map((u, index) => `
+                          <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}">
+                             <td class="p-4 text-gray-400 font-mono">#${u.id}</td>
+                             <td class="p-4 font-bold text-gray-700">
+                                <div class="flex items-center gap-2">
+                                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-xs text-gray-500">
+                                     ${u.username.charAt(0).toUpperCase()}
+                                  </div>
+                                  ${u.username}
+                                </div>
+                             </td>
+                             <td class="p-4 text-gray-600">${u.email}</td>
+                             <td class="p-4">
+                                <span class="px-2 py-1 rounded-md text-xs font-bold ${
+                                  u.role === 'admin' ? 'bg-red-100 text-red-600' : 
+                                  u.role === 'company' ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-600'
+                                }">
+                                  ${u.role === 'admin' ? 'Yönetici' : u.role === 'company' ? 'Satıcı' : 'Üye'}
+                                </span>
+                             </td>
+                             <td class="p-4 text-gray-500 text-xs">
+                                ${new Date(u.createdAt).toLocaleDateString('tr-TR')}
+                             </td>
+                          </tr>
+                        `).join('')}
+                     </tbody>
+                  </table>
+               </div>
+             `;
+             // Insert before the danger zone (last child usually)
+             const dangerZone = document.querySelector(".mt-12.max-w-4xl"); // Targeting the danger zone div
+             if(dangerZone) {
+               mainContainer.insertBefore(adminSection, dangerZone);
+             } else {
+               mainContainer.appendChild(adminSection);
+             }
+          }
+        } catch (e) {
+          console.error("Admin user fetch failed:", e);
+        }
+      }
+
       // Update Form
       const form = document.getElementById("profile-form");
       if (form) {
