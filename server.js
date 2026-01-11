@@ -35,7 +35,7 @@ function initDb() {
       `CREATE TABLE IF NOT EXISTS user_details (userId INTEGER PRIMARY KEY, gender TEXT, bio TEXT, age INTEGER, FOREIGN KEY(userId) REFERENCES users(id))`
     );
     db.run(
-      `CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, description TEXT, image TEXT, createdAt TEXT, createdBy INTEGER, username TEXT)`
+      `CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, category TEXT, description TEXT, image TEXT, createdAt TEXT, createdBy INTEGER, username TEXT, specifications TEXT)`
     );
     db.run(
       `CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, productId INTEGER, userId INTEGER, user TEXT, username TEXT, rating INTEGER, comment TEXT, content TEXT, date TEXT, createdAt TEXT, FOREIGN KEY(productId) REFERENCES products(id), FOREIGN KEY(userId) REFERENCES users(id))`
