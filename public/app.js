@@ -845,6 +845,8 @@ const app = {
             .map((p) => this.createCard(p, false))
             .join("");
         }
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
