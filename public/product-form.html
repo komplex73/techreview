@@ -9,6 +9,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
       body {
@@ -62,6 +63,12 @@
               required
             />
           </div>
+
+          <!-- Dinamik Kategori Özellikleri -->
+          <div id="category-specs" class="space-y-4">
+            <!-- JS ile doldurulacak -->
+          </div>
+
           <div>
             <label class="block font-bold mb-2">Puanınız (1-5)</label>
             <div class="flex gap-2 text-3xl text-gray-300 cursor-pointer mb-2" id="form-star-rating">
@@ -71,11 +78,7 @@
                 <i class="fa-solid fa-star transition-colors hover:scale-110" data-value="4"></i>
                 <i class="fa-solid fa-star transition-colors hover:scale-110" data-value="5"></i>
             </div>
-            <input type="hidden" name="rating" id="rating-input" required>
-              max="10"
-              class="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <input type="hidden" name="rating" id="rating-input" value="0" required />
           </div>
           <div>
             <label class="block font-bold mb-2">İnceleme</label

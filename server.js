@@ -174,44 +174,79 @@ app.post("/api/users/:id/apply", (req, res) => {
     (err) => res.json({ success: true })
   );
 });
+
+// DELETE account - cascade delete all user data
+app.delete("/api/users/:id", (req, res) => {
+  const userId = req.params.id;
+  
+  // Delete all user-related data in order (foreign key constraints)
+  db.serialize(() => {
+    db.run("DELETE FROM forum_posts WHERE userId = ?", [userId]);
+    db.run("DELETE FROM forum_topics WHERE userId = ?", [userId]);
+    db.run("DELETE FROM reviews WHERE userId = ?", [userId]);
+    db.run("DELETE FROM products WHERE createdBy = ?", [userId]);
+    db.run("DELETE FROM user_details WHERE userId = ?", [userId]);
+    db.run("DELETE FROM users WHERE id = ?", [userId], function(err) {
+      if (err) {
+        return res.status(500).json({ error: "Hesap silinirken hata oluştu." });
+      }
+      res.json({ success: true, deleted: this.changes });
+    });
+  });
+});
+
 app.get("/api/products", (req, res) =>
   db.all(
     `
     SELECT products.*, 
-    AVG(reviews.rating) as avgRating, 
-    COUNT(reviews.id) as reviewCount 
+    COALESCE(AVG(CAST(reviews.rating AS FLOAT)), 0) as avgRating, 
+    COUNT(CASE WHEN reviews.rating > 0 THEN 1 END) as reviewCount 
     FROM products 
-    LEFT JOIN reviews ON products.id = reviews.productId 
+    LEFT JOIN reviews ON products.id = reviews.productId
     GROUP BY products.id 
     ORDER BY products.createdAt DESC
     `,
     [],
-    (err, rows) => res.json(rows)
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching products:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      console.log("Products with ratings:", rows);
+      res.json(rows);
+    }
   )
 );
 app.get("/api/products/:id", (req, res) =>
   db.get(
     `
     SELECT products.*, 
-    AVG(reviews.rating) as avgRating, 
-    COUNT(reviews.id) as reviewCount 
+    COALESCE(AVG(CAST(reviews.rating AS FLOAT)), 0) as avgRating, 
+    COUNT(CASE WHEN reviews.rating > 0 THEN 1 END) as reviewCount 
     FROM products 
     LEFT JOIN reviews ON products.id = reviews.productId 
     WHERE products.id = ?
     GROUP BY products.id
     `,
     [req.params.id],
-    (err, row) => res.json(row)
+    (err, row) => {
+      if (err) {
+        console.error("Error fetching product:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      console.log("Product detail with rating:", row);
+      res.json(row);
+    }
   )
 );
 app.post("/api/products", (req, res) => {
-  const { name, category, description, image, createdBy, username, rating } =
+  const { name, category, description, image, createdBy, username, rating, specifications } =
     req.body;
   const createdAt = new Date().toISOString();
 
   db.run(
-    `INSERT INTO products (name, category, description, image, createdAt, createdBy, username) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [name, category, description, image, createdAt, createdBy, username],
+    `INSERT INTO products (name, category, description, image, specifications, createdAt, createdBy, username) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [name, category, description, image, specifications, createdAt, createdBy, username],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
 
@@ -257,18 +292,33 @@ app.get("/api/reviews/:productId", (req, res) =>
 app.post("/api/reviews", (req, res) => {
   const { productId, userId, username, content, rating } = req.body;
   const createdAt = new Date().toISOString();
+
+  // Validate rating
+  const finalRating = parseInt(rating);
+
+  // Strict validation: Must be an integer 1-5
+  if (isNaN(finalRating) || finalRating < 1 || finalRating > 5) {
+      console.error(`❌ Invalid rating attempt: ${rating}`);
+      return res.status(400).json({ error: "Lütfen 1 ile 5 arasında bir puan verin." });
+  }
+
+
+
+  console.log(
+    `📝 New Review - Product: ${productId}, User: ${username}, Rating Input: ${rating}, Final: ${finalRating}`
+  );
+
   db.run(
     `INSERT INTO reviews (productId, userId, username, content, rating, createdAt) VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      productId,
-      userId,
-      username,
-      content,
-      rating && rating > 0 ? rating : 5,
-      createdAt,
-    ],
+    [productId, userId, username, content, finalRating, createdAt],
     function (err) {
-      if (err) return res.status(500).json({ error: err.message });
+      if (err) {
+        console.error("❌ Review insert error:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      console.log(
+        `✅ Review saved - ID: ${this.lastID}, Rating: ${finalRating}`
+      );
       res.json({ id: this.lastID });
     }
   );
@@ -292,23 +342,30 @@ app.get("/api/users/:userId/reviews", (req, res) => {
 app.get("/api/users/:userId/products", (req, res) => {
   db.all(
     `SELECT products.*, 
-     AVG(reviews.rating) as avgRating 
+     COALESCE(AVG(CAST(reviews.rating AS FLOAT)), 0) as avgRating 
      FROM products 
      LEFT JOIN reviews ON products.id = reviews.productId 
-     WHERE products.createdBy = ? 
+     WHERE products.createdBy = ?
      GROUP BY products.id
      ORDER BY products.createdAt DESC`,
     [req.params.userId],
-    (err, rows) => res.json(rows)
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching user products:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      console.log("User products with ratings:", rows);
+      res.json(rows);
+    }
   );
 });
 app.put("/api/products/:id", (req, res) => {
-  const { name, category, description, image, rating } = req.body;
+  const { name, category, description, image, rating, specifications } = req.body;
 
-  // 1. Update Product Info
+  // 1. Update Product Info (including specifications)
   db.run(
-    "UPDATE products SET name = ?, category = ?, description = ?, image = ? WHERE id = ?",
-    [name, category, description, image, req.params.id],
+    "UPDATE products SET name = ?, category = ?, description = ?, image = ?, specifications = ? WHERE id = ?",
+    [name, category, description, image, specifications, req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
 
@@ -347,6 +404,45 @@ app.get("/api/news", (req, res) =>
     res.json(rows)
   )
 );
+app.get("/api/news/:id", (req, res) =>
+  db.get("SELECT * FROM news WHERE id = ?", [req.params.id], (err, row) =>
+    res.json(row || {})
+  )
+);
+app.post("/api/news", (req, res) => {
+  const { title, summary, content, image, category, source, url } = req.body;
+  const createdAt = new Date().toISOString();
+  
+  db.run(
+    `INSERT INTO news (title, summary, content, image, category, source, url, createdAt) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [title, summary, content, image, category, source, url, createdAt],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID });
+    }
+  );
+});
+app.put("/api/news/:id", (req, res) => {
+  const { title, summary, content, image, category, source, url } = req.body;
+  
+  db.run(
+    `UPDATE news SET title=?, summary=?, content=?, image=?, category=?, source=?, url=? 
+     WHERE id=?`,
+    [title, summary, content, image, category, source, url, req.params.id],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ updated: this.changes });
+    }
+  );
+});
+app.delete("/api/news/:id", (req, res) => {
+  db.run("DELETE FROM news WHERE id = ?", [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ deleted: this.changes });
+  });
+});
+
 app.get("/api/forum/topics", (req, res) =>
   db.all(
     "SELECT t.*, COUNT(p.id) as postCount FROM forum_topics t LEFT JOIN forum_posts p ON t.id = p.topicId GROUP BY t.id ORDER BY t.createdAt DESC",

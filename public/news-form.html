@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haber Ekle/Düzenle - TechReview</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="page-news-form" class="bg-gray-100">
+    <div id="navbar-placeholder"></div>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 with-sidebar">
+        <a href="news.html" class="inline-flex items-center text-gray-500 hover:text-gray-900 font-bold mb-8 transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Haberlere Dön
+        </a>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <h1 class="text-3xl font-black mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Haber Ekle/Düzenle
+            </h1>
+
+            <form id="news-form" class="space-y-6">
+                <!-- Başlık -->
+                <div>
+                    <label class="block font-bold mb-2 text-gray-800">Haber Başlığı *</label>
+                    <input 
+                        name="title" 
+                        type="text"
+                        class="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        placeholder="Örn: Yapay Zeka Dünyayı Değiştiriyor"
+                        required
+                    />
+                </div>
+
+                <!-- Kategori -->
+                <div>
+                    <label class="block font-bold mb-2 text-gray-800">Kategori *</label>
+                    <select 
+                        name="category"
+                        class="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        required
+                    >
+                        <option value="">Kategori Seçin</option>
+                        <option value="Yapay Zeka">Yapay Zeka</option>
+                        <option value="Donanım">Donanım</option>
+                        <option value="Bilim">Bilim</option>
+                        <option value="Kültür & Sanat">Kültür & Sanat</option>
+                    </select>
+                </div>
+
+                <!-- Özet -->
+                <div>
+                    <label class="block font-bold mb-2 text-gray-800">Kısa Özet *</label>
+                    <textarea 
+                        name="summary"
+                        class="w-full border-2 border-gray-200 p-4 rounded-xl h-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                        placeholder="Haberin kısa özeti (1-2 cümle)"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- İçerik -->
+                <div>
+                    <label class="block font-bold mb-2 text-gray-800">Haber İçeriği *</label>
+                    <textarea 
+                        name="content"
+                        class="w-full border-2 border-gray-200 p-4 rounded-xl h-40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                        placeholder="Haberin detaylı içeriği..."
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Resim URL -->
+                <div>
+                    <label class="block font-bold mb-2 text-gray-800">Resim URL *</label>
+                    <input 
+                        name="image" 
+                        type="url"
+                        class="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        placeholder="https://example.com/image.jpg"
+                        required
+                    />
+                </div>
+
+                <!-- Kaynak -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold mb-2 text-gray-800">Kaynak *</label>
+                        <input 
+                            name="source" 
+                            type="text"
+                            class="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            placeholder="Örn: Webtekno"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-2 text-gray-800">Kaynak URL *</label>
+                        <input 
+                            name="url" 
+                            type="url"
+                            class="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            placeholder="https://kaynak-link.com"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-4 pt-4">
+                    <button 
+                        type="submit"
+                        class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                    >
+                        <i class="fa-solid fa-check mr-2"></i>
+                        Yayınla
+                    </button>
+                    <a 
+                        href="news.html"
+                        class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all"
+                    >
+                        İptal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -13,8 +13,8 @@
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
   --color-blue-700: #1d4ed8;
-  --color-amber-400: #fbbf24;
-  --color-amber-500: #f59e0b;
+  --color-amber-400: #ff8c00;
+  --color-amber-500: #ff7700;
 }
 
 /* Genel Ayarlar */
@@ -114,7 +114,7 @@ body {
 
 .star-rating i.active,
 .star-rating i.filled {
-  color: var(--color-amber-400);
+  color: #ff8c00;
 }
 
 /* Premium Button */
@@ -178,7 +178,7 @@ body {
 }
 
 .star-rating i.active {
-  color: #fbbf24; /* Amber-400 rengi */
+  color: #ff8c00; /* Vibrant Orange */
 }
 
 /* Animasyonlar */
@@ -847,3 +847,174 @@ body.sidebar-closed .site-footer {
   }
 }
 
+
+
+/* ============================================
+   ANTI-GRAVITY PROFILE PAGE THEME
+   ============================================ */
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  border-radius: 16px;
+}
+
+/* Floating Card Effect */
+.floating-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.floating-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+}
+
+/* 3D Card Transform */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card-3d:hover {
+  transform: perspective(1000px) rotateY(5deg) rotateX(3deg);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Timeline Styles */
+.timeline-container {
+  position: relative;
+  padding-left: 40px;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #667eea 0%, transparent 100%);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  animation: slideInLeft 0.6s ease forwards;
+  opacity: 0;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -32px;
+  top: 12px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+/* Floating Badge */
+.floating-badge {
+  background: linear-gradient(135deg, #ff8c00, #f59e0b);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Profile Stats Enhanced */
+.stat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid var(--color-slate-200);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+  border-color: #667eea;
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: rotate(10deg) scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .floating-card:hover {
+    transform: translateY(-6px);
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+}
