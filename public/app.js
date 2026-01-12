@@ -1470,9 +1470,7 @@ const app = {
                         </div>
                     </div>
                     <div class="p-8 sm:p-12">
-                        <div class="prose max-w-none text-gray-700 text-lg">
-                            ${product.description}
-                        </div>
+
                         ${product.specifications ? `
                           <div class="mt-8 bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-2xl border-2 border-blue-200">
                             <h3 class="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
