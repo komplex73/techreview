@@ -367,7 +367,8 @@ body {
   transition: opacity 0.2s ease;
 }
 
-.sidebar-nav.expanded .nav-item span {
+.sidebar-nav.expanded .nav-item span,
+.sidebar-nav.open .nav-item span {
   opacity: 1;
 }
 
@@ -383,7 +384,8 @@ body {
   transition: opacity 0.2s ease;
 }
 
-.sidebar-nav.expanded .nav-section-title {
+.sidebar-nav.expanded .nav-section-title,
+.sidebar-nav.open .nav-section-title {
   opacity: 1;
 }
 
