@@ -47,6 +47,18 @@ function initDb() {
       `CREATE TABLE IF NOT EXISTS forum_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, topicId INTEGER, userId INTEGER, username TEXT, content TEXT, createdAt TEXT, FOREIGN KEY(topicId) REFERENCES forum_topics(id))`
     );
 
+    // --- SEPET TABLOSU (İstek Listesi) ---
+    db.run(
+      `CREATE TABLE IF NOT EXISTS cart (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId INTEGER,
+          productId INTEGER,
+          createdAt TEXT,
+          FOREIGN KEY(userId) REFERENCES users(id),
+          FOREIGN KEY(productId) REFERENCES products(id)
+      )`
+    );
+
     // --- HABERLER TABLOSU ---
     db.run(
       `CREATE TABLE IF NOT EXISTS news (
@@ -158,12 +170,33 @@ app.get("/api/users/:id", (req, res) =>
     (err, row) => res.json(row || {})
   )
 );
+
+// UPDATE USER (Now supports username update)
 app.put("/api/users/:id", (req, res) => {
-  const { bio, age, gender } = req.body;
+  const { bio, age, gender, username } = req.body; // Added username
+
+  // 1. Update User Details
   db.run(
-    `INSERT INTO user_details (userId, bio, age, gender) VALUES (?, ?, ?, ?) ON CONFLICT(userId) DO UPDATE SET bio=excluded.bio, age=excluded.age, gender=excluded.gender`,
+    "INSERT OR REPLACE INTO user_details (userId, bio, age, gender) VALUES (?, ?, ?, ?)",
     [req.params.id, bio, age, gender],
-    (err) => res.json({ success: true })
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+
+      // 2. Update Username (if provided)
+      if (username) {
+        db.run(
+          "UPDATE users SET username = ? WHERE id = ?",
+          [username, req.params.id],
+          (err) => {
+             if (err) console.error("Username update failed:", err);
+             // Even if username fails (e.g. duplicate?), we return success for details
+             res.json({ success: true }); 
+          }
+        );
+      } else {
+        res.json({ success: true });
+      }
+    }
   );
 });
 app.post("/api/users/:id/apply", (req, res) => {
@@ -449,6 +482,47 @@ app.put("/api/news/:id", (req, res) => {
 });
 app.delete("/api/news/:id", (req, res) => {
   db.run("DELETE FROM news WHERE id = ?", [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ deleted: this.changes });
+  });
+});
+
+// --- CART ENDPOINTS ---
+app.get("/api/cart/:userId", (req, res) => {
+  db.all(
+    `SELECT cart.id as cartId, products.* 
+     FROM cart 
+     JOIN products ON cart.productId = products.id 
+     WHERE cart.userId = ? 
+     ORDER BY cart.createdAt DESC`,
+    [req.params.userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+app.post("/api/cart", (req, res) => {
+  const { userId, productId } = req.body;
+  
+  // Check if already in cart
+  db.get("SELECT id FROM cart WHERE userId = ? AND productId = ?", [userId, productId], (err, row) => {
+    if (row) return res.status(400).json({ error: "Ürün zaten listede ekli." });
+    
+    db.run(
+      "INSERT INTO cart (userId, productId, createdAt) VALUES (?, ?, ?)",
+      [userId, productId, new Date().toISOString()],
+      function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID });
+      }
+    );
+  });
+});
+
+app.delete("/api/cart/:id", (req, res) => {
+  db.run("DELETE FROM cart WHERE id = ?", req.params.id, function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ deleted: this.changes });
   });

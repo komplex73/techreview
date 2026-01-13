@@ -113,7 +113,11 @@
                         </h2>
                     </div>
                     <div class="p-6">
-                         <form id="profile-form" class="space-y-4">
+                             <form id="profile-form" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kullanıcı Adı</label>
+                                <input name="username" type="text" placeholder="Kullanıcı Adı" class="w-full border border-gray-200 p-2.5 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-bold text-gray-700">
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hakkımda</label>
                                 <textarea name="bio" class="w-full border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all resize-none" rows="3" placeholder="Kendinizden bahsedin..."></textarea>
@@ -157,6 +161,23 @@
 
              <!-- Right Column: Activity -->
             <div class="lg:col-span-2 space-y-8">
+                
+                <!-- My Favorites / Cart Section -->
+                <div class="glass-card floating-card overflow-hidden">
+                     <div class="p-6 border-b border-white/50 flex justify-between items-center bg-gradient-to-r from-pink-50/50 to-white/50">
+                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                           <span class="bg-pink-100 text-pink-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-heart"></i></span>
+                           Favorilerim / İstek Listem
+                        </h2>
+                        <span class="text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded">Kaydedilenler</span>
+                    </div>
+                    <div class="p-6">
+                        <div id="my-cart-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <!-- Loading State -->
+                             <p class="text-gray-400 text-sm italic">Yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- My Reviews Section - Glassmorphism -->
                 <div class="glass-card floating-card overflow-hidden">

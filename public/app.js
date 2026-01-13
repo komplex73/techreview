@@ -980,9 +980,14 @@ const app = {
                 <div class="p-5">
                     <div class="flex items-center justify-between mb-3">
                         <div class="star-rating">${starsHtml}</div>
-                        <span class="text-sm font-bold text-slate-700 flex items-center gap-1">
-                          <i class="fa-solid fa-star text-xs" style="color: #ff8c00;"></i> ${avgRating}
-                        </span>
+                        <div class="flex gap-2">
+                             <button onclick="event.stopPropagation(); app.addToCart(${p.id}, event)" class="text-gray-400 hover:text-red-500 transition-colors" title="Sepete/Favorilere Ekle">
+                                <i class="fa-regular fa-heart text-xl"></i>
+                             </button>
+                             <span class="text-sm font-bold text-slate-700 flex items-center gap-1">
+                                <i class="fa-solid fa-star text-xs" style="color: #ff8c00;"></i> ${avgRating}
+                             </span>
+                        </div>
                     </div>
                     <h3 class="text-lg font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">${
                       p.name
@@ -1020,6 +1025,42 @@ const app = {
     } catch (err) {
       alert("Hata: " + err.message);
     }
+  },
+  async addToCart(productId, e) {
+    if (e) e.stopPropagation();
+    if (!this.currentUser) {
+        alert("Lütfen önce giriş yapın.");
+        window.location.href = "login.html";
+        return;
+    }
+    try {
+        await api.post("/cart", { userId: this.currentUser.id, productId });
+        alert("Ürün sepetinize/favorilerinize eklendi! ✨");
+        // Change icon to solid red
+        if (e.target.tagName === 'I') {
+            e.target.classList.replace('fa-regular', 'fa-solid');
+            e.target.classList.add('text-red-500');
+        } else if (e.target.querySelector('i')) {
+             e.target.querySelector('i').classList.replace('fa-regular', 'fa-solid');
+             e.target.querySelector('i').classList.add('text-red-500');
+        }
+    } catch (err) {
+        alert("Hata: " + (err.message || "Eklenemedi"));
+    }
+  },
+  async removeFromCart(cartId) {
+      if (!confirm("Sepetten kaldırmak istiyor musunuz?")) return;
+      try {
+          await api.delete(`/cart/${cartId}`);
+          // Remove element from DOM or reload
+           const el = document.getElementById(`cart-item-${cartId}`);
+           if (el) el.remove();
+           // Also reload to be sure
+           // window.location.reload();
+           alert("Ürün sepetten çıkarıldı.");
+      } catch (err) {
+          alert("Hata: " + err.message);
+      }
   },
   initLogin() {
     const form = document.getElementById("login-form");
@@ -1792,8 +1833,9 @@ const app = {
       // Show loading state implicitly by initial HTML "Yükleniyor..."
 
       const details = await api.get(`/users/${this.currentUser.id}`);
-      const products = await api.get(`/users/${this.currentUser.id}/products`); // Removes || [] to handle error in catch if needed, but api.get returns [] on error anyway.
+      const products = await api.get(`/users/${this.currentUser.id}/products`); 
       const reviews = await api.get(`/users/${this.currentUser.id}/reviews`);
+      const cart = await api.get(`/cart/${this.currentUser.id}`);
 
       // Update Header
       const usernameEl = document.getElementById("profile-username");
@@ -1880,6 +1922,7 @@ const app = {
       // Update Form
       const form = document.getElementById("profile-form");
       if (form) {
+        form.username.value = this.currentUser.username;
         form.bio.value = (details && details.bio) || "";
         form.age.value = (details && details.age) || "";
         form.gender.value = (details && details.gender) || "";
@@ -1890,13 +1933,53 @@ const app = {
 
         newForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-          await api.put(`/users/${this.currentUser.id}`, {
-            bio: newForm.bio.value,
-            age: newForm.age.value,
-            gender: newForm.gender.value,
-          });
-          alert("Profil başarıyla güncellendi.");
+          try {
+            await api.put(`/users/${this.currentUser.id}`, {
+                username: newForm.username.value,
+                bio: newForm.bio.value,
+                age: newForm.age.value,
+                gender: newForm.gender.value,
+            });
+            
+            // Update local storage implementation
+            if (newForm.username.value !== this.currentUser.username) {
+                 const updatedUser = {...this.currentUser, username: newForm.username.value};
+                 localStorage.setItem("current_user_session", JSON.stringify(updatedUser));
+                 this.currentUser = updatedUser;
+            }
+
+            alert("Profil başarıyla güncellendi.");
+            window.location.reload();
+          } catch(err) {
+              alert("Güncelleme hatası: " + err.message);
+          }
         });
+      }
+
+      // Render Cart (Favorites)
+      const cartList = document.getElementById("my-cart-list");
+      if (cartList) {
+          if (cart && cart.length > 0) {
+              cartList.innerHTML = cart.map(item => `
+                <div id="cart-item-${item.cartId}" class="flex items-center gap-4 bg-white p-4 rounded-xl border border-pink-100 shadow-sm hover:shadow-md transition-all">
+                    <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg bg-gray-100" onerror="this.src='https://placehold.co/100'">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-gray-800 text-sm truncate">${item.name}</h4>
+                        <span class="text-xs text-pink-500 font-bold bg-pink-50 px-2 py-0.5 rounded-full">${item.category}</span>
+                    </div>
+                    <div class="flex gap-2">
+                         <button onclick="window.location.href='product-detail.html?id=${item.id}'" class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="Görüntüle">
+                             <i class="fa-solid fa-eye"></i>
+                         </button>
+                         <button onclick="app.removeFromCart(${item.cartId})" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Kaldır">
+                             <i class="fa-solid fa-trash"></i>
+                         </button>
+                    </div>
+                </div>
+              `).join('');
+          } else {
+              cartList.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">Favori listeniz boş.</div>';
+          }
       }
 
       // Update Stats
