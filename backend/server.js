@@ -728,6 +728,32 @@ app.post("/api/auth/register", (req, res) => {
   );
 });
 
+// DEBUG: List files in public/html
+app.get('/api/debug-files', (req, res) => {
+    const htmlDir = path.join(baseDir, 'public', 'html');
+    fs.readdir(htmlDir, (err, files) => {
+        if (err) return res.status(500).json({ error: err.message, path: htmlDir });
+        res.json({ files, path: htmlDir });
+    });
+});
+
+// EXPLICIT ROUTES for Static Files (Fix for Render static serving issues)
+app.get(['/about.html', '/about'], (req, res) => {
+    res.sendFile(path.join(baseDir, 'public', 'html', 'about.html'));
+});
+app.get(['/contact.html', '/contact'], (req, res) => {
+    res.sendFile(path.join(baseDir, 'public', 'html', 'contact.html')); // Note: contact.html might not exist, checking support.html
+});
+app.get(['/support.html', '/support'], (req, res) => {
+    res.sendFile(path.join(baseDir, 'public', 'html', 'support.html'));
+});
+
+// Catch-All for 404 (Optional debugging)
+app.use((req, res, next) => {
+    console.log(`404 Not Found: ${req.url}`);
+    next();
+});
+
 app.listen(PORT, () =>
   console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor.`)
 );
