@@ -25,7 +25,11 @@ app.use('/js', express.static(path.join(baseDir, 'public', 'js')));
 app.use('/public', express.static(path.join(baseDir, 'public')));
 
 // Serve HTML as root
-app.use(express.static(path.join(baseDir, 'public', 'html')));
+const htmlDir = path.join(baseDir, 'public', 'html');
+console.log("📂 Static HTML Directory:", htmlDir);
+console.log("📂 Base Directory:", baseDir);
+
+app.use(express.static(htmlDir, { extensions: ['html', 'htm'] }));
 
 
 // --- DATABASE SETUP ---
