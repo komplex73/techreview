@@ -80,7 +80,7 @@ function initDb() {
       )`
     );
 
-    // --- HABERLER TABLOSU ---
+// HABERLER TABLOSU
     db.run(
       `CREATE TABLE IF NOT EXISTS news (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -104,7 +104,22 @@ function initDb() {
         }
       }
     );
+
+    // FORUM TOPIK TABLOSU (Seed ile)
+    db.run(
+       `CREATE TABLE IF NOT EXISTS forum_topics (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, userId INTEGER, username TEXT, createdAt TEXT, viewCount INTEGER DEFAULT 0)`,
+       function(err) {
+           if(!err) {
+               db.get("SELECT COUNT(*) as count FROM forum_topics", (err, row) => {
+                   if (!err && row.count === 0) {
+                        seedForum();
+                   }
+               });
+           }
+       }
+    );
   });
+}
 }
 
 // GERÇEK HABER İÇERİKLERİ (Kategoriler Çeşitlendirildi)
@@ -175,6 +190,33 @@ function seedNews() {
   stmt.finalize();
   console.log("✅ Gerçek haber verileri yüklendi.");
 }
+
+function seedForum() {
+  const topics = [
+    { title: "Genel Sohbet", category: "Genel", content: "Teknoloji dünyasından genel sohbetler." },
+    { title: "Telefon Önerileri", category: "Telefon", content: "Hangi telefonu almalıyım? Önerilerinizi bekliyorum." },
+    { title: "Dizüstü Bilgisayarlar", category: "Laptop", content: "İş ve oyun için laptop tavsiyeleri." },
+    { title: "Yapay Zeka Gelişmeleri", category: "Yapay Zeka", content: "AI dünyasındaki son yenilikleri tartışıyoruz." },
+    { title: "Oyun Dünyası", category: "Oyun", content: "Favori oyunlarınız ve beklentileriniz." }
+  ];
+
+  const stmt = db.prepare(
+    "INSERT INTO forum_topics (title, category, userId, username, createdAt) VALUES (?, ?, ?, ?, ?)"
+  );
+
+  topics.forEach((t) => {
+    stmt.run(
+      t.title,
+      t.category,
+      1, // System User ID
+      "Sistem",
+      new Date().toISOString()
+    );
+  });
+  stmt.finalize();
+  console.log("✅ Forum verileri yüklendi.");
+}
+
 
 // --- ROTALAR ---
 app.get("/api/users", (req, res) =>
