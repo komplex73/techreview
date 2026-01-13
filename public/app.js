@@ -666,12 +666,54 @@ const app = {
     // Ensure main content has sidebar class for spacing
     const main = document.querySelector("main");
     if (main) main.classList.add("with-sidebar");
+    
+    // Init Smart Search
+    this.initSmartSearch();
+  },
+
+  initSmartSearch() {
+    const searchInput = document.getElementById("search-input");
+    if (!searchInput) return;
+
+    searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const query = e.target.value.toLowerCase().trim();
+            
+            // Smart Navigation Commands
+            if (["forum", "topluluk", "tartışma"].some(k => query.includes(k))) {
+                window.location.href = "forum.html";
+                return;
+            }
+            if (["profil", "hesabım", "ayarlar"].some(k => query.includes(k))) {
+                window.location.href = "profile.html";
+                return;
+            }
+            if (["haber", "gündem", "teknoloji haberleri"].some(k => query.includes(k))) {
+                window.location.href = "news.html";
+                return;
+            }
+            if (["ana sayfa", "home", "incelemeler"].some(k => query.includes(k))) {
+                window.location.href = "index.html";
+                return;
+            }
+            if (["çıkış", "logout"].some(k => query.includes(k))) {
+                this.logout();
+                return;
+            }
+            
+            // If on home page, filter products. Else redirect to home with search
+            if (document.body.id === "page-home" && window.filterCategory) {
+                 window.filterCategory("Tümü", query);
+            } else {
+                 window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+    });
   },
 
   // --- PROFESSIONAL FOOTER ---
   renderFooter() {
     const pageId = document.body.id;
-    // Skip footer on auth pages for minimalist look
     if (pageId === "page-login" || pageId === "page-register") return;
 
     let footerContainer = document.getElementById("footer-container");
@@ -683,93 +725,105 @@ const app = {
 
     const currentYear = new Date().getFullYear();
 
+    // Note: We use 'site-footer' class primarily for the sidebar margin transitions defined in css
     footerContainer.innerHTML = `
-      <footer class="site-footer" role="contentinfo" itemscope itemtype="https://schema.org/WPFooter">
-        <div class="footer-main">
-          <div class="footer-grid">
-            
-            <!-- TechReview Hakkında -->
-            <div class="footer-section">
-              <h3 class="footer-heading">TechReview Hakkında</h3>
-              <p class="footer-text">Türkiye'nin en güvenilir teknoloji ürün inceleme platformu. Tarafsız, detaylı ve kullanıcı odaklı incelemelerle doğru satın alma kararı vermenize yardımcı oluyoruz.</p>
-              <div class="footer-social">
-                <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Twitter'da TechReview" class="social-link">
-                  <i class="fa-brands fa-twitter"></i>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram'da TechReview" class="social-link">
-                  <i class="fa-brands fa-instagram"></i>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube'da TechReview" class="social-link">
-                  <i class="fa-brands fa-youtube"></i>
-                </a>
-                <a href="#" target="_blank" rel="noopener noreferrer" aria-label="GitHub'da TechReview" class="social-link">
-                  <i class="fa-brands fa-github"></i>
-                </a>
-              </div>
+      <footer class="site-footer bg-slate-900 text-slate-300 font-sans border-t border-slate-800">
+        <!-- Top Section: Brand & Newsletter -->
+        <div class="max-w-7xl mx-auto px-6 pt-16 pb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-slate-800 pb-12">
+                <div class="flex flex-col gap-4 max-w-md text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                            <i class="fa-solid fa-layer-group text-lg"></i>
+                        </div>
+                        <span class="text-2xl font-black text-white tracking-tight">Tech<span class="text-blue-500">Review</span></span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Teknoloji dünyasındaki en son incelemeler, haberler ve tartışmalar için güvenilir kaynağınız. 
+                        Topluluğumuza katılın ve deneyimlerinizi paylaşın.
+                    </p>
+                </div>
+                
+                <div class="w-full max-w-sm bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+                    <h3 class="text-white font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-regular fa-envelope text-blue-500"></i> Bültene Abone Ol
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">En yeni incelemelerden anında haberdar olun.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="E-posta adresiniz" class="flex-1 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all hover:shadow-lg hover:shadow-blue-600/20">
+                            Kayıt Ol
+                        </button>
+                    </div>
+                </div>
             </div>
-
-            <!-- Kategoriler -->
-            <div class="footer-section">
-              <h3 class="footer-heading">Kategoriler</h3>
-              <ul class="footer-links">
-                <li><a href="index.html">Tüm İncelemeler</a></li>
-                ${Object.keys(this.themes).filter(k => k !== "Tümü").slice(0, 7).map(cat => 
-                  `<li><a href="index.html?cat=${cat}"><i class="fa-solid ${this.themes[cat].icon} w-4 mr-1 text-xs"></i> ${cat}</a></li>`
-                ).join('')}
-              </ul>
-            </div>
-
-            <!--İçerik -->
-            <div class="footer-section">
-              <h3 class="footer-heading">İçerik</h3>
-              <ul class="footer-links">
-                <li><a href="index.html"><i class="fa-solid fa-magnifying-glass w-4 mr-1 text-xs"></i> İncelemeler</a></li>
-                <li><a href="news.html"><i class="fa-regular fa-newspaper w-4 mr-1 text-xs"></i> Haberler</a></li>
-                <li><a href="forum.html"><i class="fa-regular fa-comments w-4 mr-1 text-xs"></i> Forum</a></li>
-                <li><a href="product-form.html"><i class="fa-solid fa-pen w-4 mr-1 text-xs"></i> İnceleme Yaz</a></li>
-                <li><a href="profile.html"><i class="fa-solid fa-user w-4 mr-1 text-xs"></i> Profilim</a></li>
-              </ul>
-            </div>
-
-            <!-- Yasal & Yardım -->
-            <div class="footer-section">
-              <h3 class="footer-heading">Yasal & Yardım</h3>
-              <ul class="footer-links">
-                <li><a href="faq.html"><i class="fa-solid fa-circle-question w-4 mr-1 text-xs"></i> Sık Sorulan Sorular</a></li>
-                <li><a href="sitemap.html"><i class="fa-solid fa-sitemap w-4 mr-1 text-xs"></i> Site Haritası</a></li>
-                <li><a href="privacy.html"><i class="fa-solid fa-shield-halved w-4 mr-1 text-xs"></i> Gizlilik Politikası</a></li>
-                <li><a href="terms.html"><i class="fa-solid fa-file-contract w-4 mr-1 text-xs"></i> Kullanım Şartları</a></li>
-                <li><a href="cookies.html"><i class="fa-solid fa-cookie w-4 mr-1 text-xs"></i> Çerez Politikası</a></li>
-              </ul>
-            </div>
-
-
-          </div>
         </div>
 
-        <!-- Footer Alt Bilgi -->
-        <div class="footer-bottom">
-          <div class="footer-bottom-content">
-            <div class="footer-legal">
-              <p class="copyright">© ${currentYear} TechReview. Tüm hakları saklıdır.</p>
-              <p class="affiliate-notice">
-                <i class="fa-solid fa-info-circle"></i>
-                Bu sitedeki bazı bağlantılar affiliate bağlantılardır. Satın alımlarınızdan komisyon kazanabiliriz. 
-                <a href="affiliate.html" class="affiliate-link">Detaylı bilgi</a>
-              </p>
+        <!-- Middle Section: Links -->
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Platform</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="index.html" class="hover:text-blue-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> İncelemeler</a></li>
+                        <li><a href="news.html" class="hover:text-blue-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> Haberler</a></li>
+                        <li><a href="forum.html" class="hover:text-blue-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> Forum</a></li>
+                        <li><a href="product-form.html" class="hover:text-blue-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i> İnceleme Yaz</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Kategoriler</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="index.html?cat=Telefon" class="hover:text-blue-400 transition-colors">Telefonlar</a></li>
+                        <li><a href="index.html?cat=Laptop" class="hover:text-blue-400 transition-colors">Laptoplar</a></li>
+                        <li><a href="index.html?cat=Oyun" class="hover:text-blue-400 transition-colors">Oyun Dünyası</a></li>
+                        <li><a href="index.html?cat=Yapay%20Zeka" class="hover:text-blue-400 transition-colors">Yapay Zeka</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Kurumsal</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-blue-400 transition-colors">Hakkımızda</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition-colors">Kariyer</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition-colors">İletişim</a></li>
+                        <li><a href="#" class="hover:text-blue-400 transition-colors">Reklam</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Bizi Takip Edin</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all hover:scale-110">
+                            <i class="fa-brands fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white transition-all hover:scale-110">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all hover:scale-110">
+                            <i class="fa-brands fa-youtube"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-gray-100 hover:text-black transition-all hover:scale-110">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="footer-badges">
-              <span class="badge">
-                <i class="fa-solid fa-shield-halved"></i> Güvenli
-              </span>
-              <span class="badge">
-                <i class="fa-solid fa-certificate"></i> Tarafsız
-              </span>
-              <span class="badge">
-                <i class="fa-solid fa-heart"></i> Türkiye'de
-              </span>
+        </div>
+
+        <!-- Bottom Section: Copyright -->
+        <div class="bg-black/20 py-8 border-t border-slate-800/50">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-500 text-xs">
+                    &copy; ${currentYear} TechReview Inc. Tüm hakları saklıdır.
+                </p>
+                <div class="flex items-center gap-6 text-xs text-slate-500">
+                    <a href="#" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                    <a href="#" class="hover:text-white transition-colors">Kullanım Şartları</a>
+                    <a href="#" class="hover:text-white transition-colors">Çerezler</a>
+                </div>
             </div>
-          </div>
         </div>
       </footer>
     `;
@@ -1782,32 +1836,85 @@ const app = {
     try {
       const topic = await api.get(`/forum/topics/${id}`);
       const posts = await api.get(`/forum/topics/${id}/posts`);
-      document.getElementById(
-        "forum-detail-container"
-      ).innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm border border-indigo-100 mb-6"><span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded uppercase">${
-        topic.category
-      }</span><h1 class="text-3xl font-black mt-2 mb-2">${
-        topic.title
-      }</h1><p class="text-gray-500 text-sm">Başlatan: ${
-        topic.username
-      } • ${new Date(topic.createdAt).toLocaleDateString(
-        "tr-TR"
-      )}</p></div><div class="space-y-4 mb-8">${posts
-        .map(
-          (p) =>
-            `<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between mb-2"><span class="font-bold text-gray-900">${
-              p.username
-            }</span><span class="text-xs text-gray-400">${new Date(
-              p.createdAt
-            ).toLocaleDateString(
-              "tr-TR"
-            )}</span></div><p class="text-gray-700">${p.content}</p></div>`
-        )
-        .join("")}</div>${
+      document.getElementById("forum-detail-container").innerHTML = `
+        <!-- Modernized Topic Header -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 mb-8 text-white relative overflow-hidden shadow-2xl border border-slate-700">
+            <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-comments text-9xl text-white"></i>
+            </div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center gap-3 mb-4">
+                     <span class="bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                        ${topic.category}
+                     </span>
+                     <span class="text-slate-400 text-xs flex items-center gap-1">
+                        <i class="fa-regular fa-clock"></i> ${new Date(topic.createdAt).toLocaleDateString("tr-TR")}
+                     </span>
+                </div>
+                
+                <h1 class="text-3xl md:text-4xl font-black mb-6 leading-tight">${topic.title}</h1>
+                
+                <div class="flex items-center gap-4 border-t border-white/10 pt-6">
+                    <div class="flex items-center gap-3">
+                         <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-slate-800">
+                            ${topic.username.charAt(0).toUpperCase()}
+                         </div>
+                         <div>
+                            <span class="block text-sm font-bold text-white">${topic.username}</span>
+                            <span class="block text-xs text-slate-400">Konu Sahibi</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts List -->
+        <div class="space-y-6 mb-12 relative">
+             <div class="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-100 hidden md:block"></div>
+             ${posts.map((p, index) => `
+                <div class="relative pl-0 md:pl-16 group">
+                    <!-- Connector Line Dot (Desktop only) -->
+                    <div class="absolute left-[21px] top-8 w-3 h-3 bg-white border-2 border-indigo-500 rounded-full z-10 hidden md:block group-hover:scale-125 transition-transform"></div>
+                    
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4 border-b border-gray-50 pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm">
+                                    ${p.username.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <span class="block font-bold text-gray-900 text-sm">${p.username}</span>
+                                    <span class="block text-xs text-gray-400">${new Date(p.createdAt).toLocaleDateString("tr-TR")} • ${new Date(p.createdAt).toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'})}</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-mono text-gray-300">#${index + 1}</span>
+                        </div>
+                        <div class="prose prose-sm max-w-none text-slate-700 leading-relaxed">
+                            <p>${p.content}</p>
+                        </div>
+                    </div>
+                </div>
+             `).join("")}
+        </div>
+
+        ${
         this.currentUser
-          ? `<div class="bg-white p-6 rounded-2xl border border-gray-200 sticky bottom-4 shadow-lg"><form id="reply-form" class="flex gap-4"><input name="content" class="flex-1 border p-3 rounded-lg" placeholder="Cevap yaz..." required><button class="bg-indigo-600 text-white px-6 rounded-lg font-bold">Gönder</button></form></div>`
-          : ""
-      }`;
+          ? `<div class="bg-white p-6 rounded-2xl border border-indigo-100 sticky bottom-6 shadow-xl z-20">
+                <form id="reply-form" class="flex gap-4 items-start">
+                     <div class="w-10 h-10 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center font-bold text-xs text-slate-500 hidden sm:flex">
+                        ${this.currentUser.username.charAt(0).toUpperCase()}
+                     </div>
+                     <div class="flex-1">
+                        <input name="content" class="w-full border border-gray-200 bg-gray-50 p-4 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm font-medium" placeholder="Bu konuya bir cevap yaz..." required autocomplete="off">
+                     </div>
+                     <button class="bg-indigo-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 flex items-center gap-2">
+                        <span>Gönder</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                     </button>
+                </form>
+             </div>`
+          : '<div class="text-center p-8 bg-gray-50 rounded-2xl text-gray-500">Cevap yazmak için giriş yapmalısınız.</div>'
+        }`;
       if (this.currentUser) {
         document
           .getElementById("reply-form")
