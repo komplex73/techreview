@@ -741,15 +741,22 @@ app.get('/api/debug-files', (req, res) => {
     });
 });
 
-// EXPLICIT ROUTES for Static Files (Fix for Render static serving issues)
-app.get(['/about.html', '/about'], (req, res) => {
-    res.sendFile(path.join(baseDir, 'public', 'html', 'about.html'));
-});
-app.get(['/contact.html', '/contact'], (req, res) => {
-    res.sendFile(path.join(baseDir, 'public', 'html', 'contact.html')); // Note: contact.html might not exist, checking support.html
-});
-app.get(['/support.html', '/support'], (req, res) => {
-    res.sendFile(path.join(baseDir, 'public', 'html', 'support.html'));
+// DYNAMIC ROUTE handling for all HTML pages (About, FAQ, Terms, etc.)
+app.get('/:page', (req, res, next) => {
+    const page = req.params.page;
+    // Security check
+    if (page.includes('..') || page.includes('/')) return next();
+
+    const filePath = path.join(baseDir, 'public', 'html', `${page}.html`);
+    
+    // Check if file exists asynchronously
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+            res.sendFile(filePath);
+        } else {
+            next(); // File not found, pass to 404 handler
+        }
+    });
 });
 
 // Catch-All for 404 (Optional debugging)
