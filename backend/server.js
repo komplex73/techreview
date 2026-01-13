@@ -120,7 +120,7 @@ function initDb() {
     );
   });
 }
-}
+
 
 // GERÇEK HABER İÇERİKLERİ (Kategoriler Çeşitlendirildi)
 function seedNews() {
