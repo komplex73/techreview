@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass-panel {
@@ -219,6 +219,24 @@
                     </div>
                 </div>
 
+                <!-- My Forum Posts Section - Glassmorphism -->
+                <div class="glass-card floating-card overflow-hidden">
+                     <div class="p-6 border-b border-white/50 flex justify-between items-center bg-gradient-to-r from-indigo-50/50 to-white/50">
+                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                           <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-pen-to-square"></i></span>
+                           Forum Gönderilerim
+                        </h2>
+                        <button onclick="window.location.href='forum.html'" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Foruma Git</button>
+                    </div>
+                    <div class="p-6">
+                        <div id="my-forum-list" class="space-y-4">
+                             <!-- Loading State -->
+                             <div class="h-20 bg-gray-100 rounded-xl animate-pulse"></div>
+                             <div class="h-20 bg-gray-100 rounded-xl animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -257,6 +275,6 @@
         </div>
     </main>
 
-    <script src="app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,258 @@
+/* ============================================
+   LAYOUT STYLES (Navbar, Sidebar, Footer)
+   ============================================ */
+
+/* Navbar Container */
+#navbar-placeholder {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+}
+
+#navbar-placeholder nav {
+  position: relative;
+  z-index: 50;
+}
+
+/* Brand Logo (Scoped) */
+.techreview-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.techreview-logo .icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.techreview-logo .brand {
+  display: inline-block;
+  line-height: 1;
+  font-weight: 700;
+  font-size: 20px;
+  color: #0b1220; 
+  letter-spacing: -0.2px;
+}
+
+.techreview-logo .brand .accent {
+  color: #0ea5e9;
+}
+
+.techreview-logo:hover .icon,
+.techreview-logo:focus .icon {
+  transform: translateY(-3px) rotate(-6deg);
+  filter: drop-shadow(0 6px 14px rgba(14, 165, 233, 0.12));
+}
+
+@media (max-width: 520px) {
+  .techreview-logo .brand { font-size: 16px; }
+  .techreview-logo .icon { width: 38px; height: 38px; flex-basis: 38px; }
+}
+
+/* Kaggle-Style Sidebar Navigation */
+.sidebar-nav {
+  position: fixed;
+  left: 0;
+  top: 64px; 
+  width: 60px; /* Mini mode default */
+  height: calc(100vh - 64px);
+  background: white;
+  border-right: 1px solid var(--color-slate-200);
+  overflow: visible; 
+  z-index: 40;
+  transition: width 0.3s ease;
+}
+
+.sidebar-nav.expanded {
+  width: 240px;
+}
+
+@media (min-width: 769px) {
+  .sidebar-nav { transform: translateX(0) !important; }
+}
+
+@media (max-width: 768px) {
+  .sidebar-nav {
+    width: 240px;
+    transform: translateX(-100%);
+  }
+  .sidebar-nav.open { transform: translateX(0); }
+}
+
+.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
+.sidebar-nav .nav-section { padding: 8px 0; border-bottom: 1px solid var(--color-slate-100); }
+.sidebar-nav .nav-section:last-child { border-bottom: none; }
+
+.sidebar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  color: var(--color-slate-700);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sidebar-nav .nav-item:hover {
+  background: var(--color-slate-50);
+  color: var(--color-blue-600);
+}
+
+.sidebar-nav .nav-item.active {
+  background: var(--color-blue-50);
+  color: var(--color-blue-600);
+  border-left: 3px solid var(--color-blue-500);
+  font-weight: 600;
+}
+
+.sidebar-nav .nav-item i {
+  min-width: 24px;
+  width: 24px;
+  margin-right: 12px;
+  font-size: 1.125rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Sidebar Text Visibility */
+.sidebar-nav .nav-item span { opacity: 0; transition: opacity 0.2s ease; }
+.sidebar-nav.expanded .nav-item span,
+.sidebar-nav.open .nav-item span { opacity: 1; }
+
+.sidebar-nav .nav-section-title {
+  padding: 8px 18px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-slate-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-nav.expanded .nav-section-title,
+.sidebar-nav.open .nav-section-title { opacity: 1; }
+
+/* Main Content Shift */
+.with-sidebar {
+  margin-left: 240px !important;
+  padding-top: 80px;
+  transition: margin-left 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+body.sidebar-closed .with-sidebar { margin-left: 60px !important; }
+
+@media (min-width: 769px) {
+  .with-sidebar { margin-left: 240px !important; }
+  body.sidebar-closed .with-sidebar { margin-left: 60px !important; }
+}
+
+@media (max-width: 768px) {
+  .with-sidebar { margin-left: 0 !important; }
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 39;
+}
+
+/* ============================================
+   SIMPLE FOOTER STYLES (Restored)
+   ============================================ */
+.site-footer {
+  background: white;
+  padding: 40px 0;
+  border-top: 1px solid var(--color-slate-200);
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sidebar Aware Footer Margins */
+body:not(.sidebar-closed) .site-footer { margin-left: 240px; }
+body.sidebar-closed .site-footer { margin-left: 60px; }
+@media (max-width: 768px) { .site-footer { margin-left: 0 !important; } }
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.footer-section h4 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--color-slate-800);
+  font-size: 1.1rem;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-section a {
+  color: var(--color-slate-500);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-section a:hover {
+  color: var(--color-blue-600);
+}
+
+.footer-section p {
+  color: var(--color-slate-500);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--color-slate-100);
+  margin-top: 3rem;
+  padding-top: 2rem;
+  text-align: center;
+  color: var(--color-slate-400);
+  font-size: 0.875rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.social-links a {
+  font-size: 1.25rem;
+  color: var(--color-slate-400);
+  transition: all 0.2s;
+}
+
+.social-links a:hover {
+  color: var(--color-blue-600);
+  transform: translateY(-2px);
+}

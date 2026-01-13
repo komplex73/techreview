@@ -7,20 +7,41 @@ const fs = require("fs");
 const app = express();
 const PORT = 3000;
 
-// Ensure user_dbs directory exists
-const USER_DB_DIR = path.join(__dirname, "user_dbs");
-if (!fs.existsSync(USER_DB_DIR)) {
-  fs.mkdirSync(USER_DB_DIR);
-}
-
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
 
-const db = new sqlite3.Database("./database.db", (err) => {
-  if (err) console.error("Veritabanı hatası:", err.message);
-  else {
-    console.log("SQLite veritabanına bağlanıldı.");
+// --- STATIC FILES CONFIGURATION ---
+// Base directory is now one level up from 'backend/'
+const baseDir = path.join(__dirname, '..');
+
+// Serve CSS from /css
+app.use('/css', express.static(path.join(baseDir, 'public', 'css')));
+
+// Serve JS from /js
+app.use('/js', express.static(path.join(baseDir, 'public', 'js')));
+
+// Serve Uploads/Images from /public (legacy support)
+app.use('/public', express.static(path.join(baseDir, 'public')));
+
+// Serve HTML as root
+app.use(express.static(path.join(baseDir, 'public', 'html')));
+
+
+// --- DATABASE SETUP ---
+const DB_SOURCE = path.join(baseDir, "database.db");
+const USER_DB_DIR = path.join(baseDir, "user_dbs");
+
+if (!fs.existsSync(USER_DB_DIR)) {
+  fs.mkdirSync(USER_DB_DIR, { recursive: true });
+}
+
+let db = new sqlite3.Database(DB_SOURCE, (err) => {
+  if (err) {
+    console.error(err.message);
+    throw err;
+  } else {
+    console.log("Connected to the SQLite database.");
     initDb();
   }
 });
@@ -570,6 +591,45 @@ app.post("/api/forum/posts", (req, res) => {
       res.json({ id: this.lastID });
     }
   );
+});
+
+app.get("/api/users/:userId/forum-posts", (req, res) => {
+    const userId = req.params.userId;
+    db.all(
+        `SELECT p.*, t.title as topicTitle 
+         FROM forum_posts p 
+         JOIN forum_topics t ON p.topicId = t.id 
+         WHERE p.userId = ? 
+         ORDER BY p.createdAt DESC`,
+        [userId],
+        (err, rows) => {
+            if(err) return res.status(500).json({error: err.message});
+            res.json(rows);
+        }
+    );
+});
+
+app.put("/api/forum/posts/:id", (req, res) => {
+    const { content } = req.body;
+    db.run(
+        "UPDATE forum_posts SET content = ? WHERE id = ?",
+        [content, req.params.id],
+        function(err) {
+            if(err) return res.status(500).json({error: err.message});
+            res.json({updated: this.changes});
+        }
+    );
+});
+
+app.delete("/api/forum/posts/:id", (req, res) => {
+    db.run(
+        "DELETE FROM forum_posts WHERE id = ?",
+        [req.params.id],
+        function(err) {
+            if(err) return res.status(500).json({error: err.message});
+            res.json({deleted: this.changes});
+        }
+    );
 });
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;

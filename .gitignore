@@ -4,3 +4,8 @@ node_modules/
 Thumbs.db
 *.log
 
+
+# Database
+database.db
+*.sqlite
+user_dbs/

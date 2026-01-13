@@ -472,18 +472,24 @@ const app = {
     categoryItems.forEach((item) => {
       item.addEventListener("click", () => {
         const category = item.getAttribute("data-category");
-        if (pageId === "page-home" && window.filterCategory) {
+        console.log("Sidebar click:", category, "Page:", pageId);
+        
+        // If we are on the Home Page, we allow in-place filtering
+        // We also check if 'window.filterCategory' exists (it's defined in initHome)
+        if (pageId === "page-home" && typeof window.filterCategory === 'function') {
           window.filterCategory(category);
-          // Close mobile sidebar
+          
+          // Close mobile sidebar if open
           const sidebar = document.getElementById("sidebar-nav");
           const overlay = document.getElementById("sidebar-overlay");
           if (window.innerWidth < 768) {
             sidebar.classList.remove("open");
             overlay.classList.remove("show");
           }
-        } else {
-          // If not home page, redirect to home with category param
-          window.location.href = `index.html?cat=${category}`;
+        } 
+        // If we are on ANY OTHER page (Forum, News, Detail etc.), we MUST redirect to Home
+        else {
+          window.location.href = `index.html?cat=${encodeURIComponent(category)}`;
         }
       });
     });
@@ -606,55 +612,51 @@ const app = {
       )
       .join("");
 
+    // SVG Logo
+    const logoHtml = `
+      <a href="index.html" class="flex items-center gap-2 group" aria-label="TechReview Ana Sayfa">
+        <!-- SVG icon -->
+        <svg class="w-10 h-10 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 64 64" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="40" height="40" rx="8" fill="#0b1220"></rect>
+            <g transform="translate(8,8)" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">
+                <path d="M6 6 H18"></path>
+                <circle cx="6" cy="6" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+                <circle cx="18" cy="6" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+                <path d="M6 18 V12"></path>
+                <circle cx="6" cy="18" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+            </g>
+            <g transform="translate(28,28) rotate(-10)">
+                <circle cx="6" cy="6" r="6" stroke="#ffffff" stroke-width="2.4" fill="none" opacity="0.95"></circle>
+                <rect x="11" y="11" width="9" height="3" rx="1.2" transform="rotate(45 11 11)" fill="#111827" stroke="#ffffff" stroke-width="1.6"></rect>
+            </g>
+            <polygon points="50,8 52.5,13 58,13 53.5,16 55.5,21 50,17 44.5,21 46.5,16 42,13 47.5,13" fill="#facc15" stroke="#f59e0b" stroke-width="0.6"></polygon>
+            <rect x="2" y="2" width="40" height="40" rx="8" fill="none" stroke="rgba(255,255,255,0.03)"></rect>
+        </svg>
+
+        <span class="text-xl font-black tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
+            Tech<span class="text-blue-600 group-hover:text-gray-900 transition-colors">Review</span>
+        </span>
+    </a>
+    `;
+
     navContainer.innerHTML = `
-        <nav id="main-navbar" class="bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm transition-colors duration-500">
+      <nav id="main-navbar" class="bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm transition-colors duration-500 fixed w-full top-0 z-40">
             <div class="w-full px-6 h-16 flex items-center justify-between">
                 
-                <!-- SOL: HAMBURGER MENÜ (Tüm Cihazlar) + LOGO -->
+                <!-- LEFT: Hamburger + LOGO -->
                 <div class="flex items-center gap-4">
-                    
-                    <!-- Hamburger Menü -->
-                    <button id="category-btn" class="p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none text-gray-700" aria-label="Menü">
+                    <button id="category-btn" class="p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none text-gray-700">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-
-                    <!-- SENİN ÖZEL LOGON (CSS .techreview-logo ile uyumlu) -->
-                    <a href="index.html" class="techreview-logo" aria-label="TechReview Ana Sayfa">
-                        <!-- SVG icon (Büyüteçli tasarım) -->
-                        <svg class="icon" viewBox="0 0 64 64" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="2" y="2" width="40" height="40" rx="8" fill="#0b1220"/>
-                            <g transform="translate(8,8)" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">
-                                <path d="M6 6 H18" />
-                                <circle cx="6" cy="6" r="1.6" fill="#0ea5e9" stroke="none"/>
-                                <circle cx="18" cy="6" r="1.6" fill="#0ea5e9" stroke="none"/>
-                                <path d="M6 18 V12" />
-                                <circle cx="6" cy="18" r="1.6" fill="#0ea5e9" stroke="none"/>
-                            </g>
-                            <g transform="translate(28,28) rotate(-10)">
-                                <circle cx="6" cy="6" r="6" stroke="#ffffff" stroke-width="2.4" fill="none" opacity="0.95"/>
-                                <rect x="11" y="11" width="9" height="3" rx="1.2" transform="rotate(45 11 11)" fill="#111827" stroke="#ffffff" stroke-width="1.6" />
-                            </g>
-                            <polygon points="50,8 52.5,13 58,13 53.5,16 55.5,21 50,17 44.5,21 46.5,16 42,13 47.5,13" fill="#facc15" stroke="#f59e0b" stroke-width="0.6"/>
-                            <rect x="2" y="2" width="40" height="40" rx="8" fill="none" stroke="rgba(255,255,255,0.03)"/>
-                        </svg>
-
-                        <span class="brand">
-                            Tech<span class="accent">Review</span>
-                        </span>
-                    </a>
-
+                    ${logoHtml}
                 </div>
 
-                <!-- ORTA: ARAMA ÇUBUĞU -->
+                <!-- CENTER: SEARCH BAR -->
                 <div class="hidden md:flex flex-1 max-w-xl mx-4">
                     <div class="relative w-full">
-                        <input
-                            type="text"
-                            id="search-input"
-                            placeholder="Search..."
-                            class="premium-search"
-                        />
-                        <i class="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="text" id="search-input" placeholder="Ürün, haber veya forum konusu ara..." 
+                               class="w-full bg-gray-100 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
 
@@ -711,7 +713,7 @@ const app = {
     });
   },
 
-  // --- PROFESSIONAL FOOTER ---
+  // --- PREMIUM FOOTER RE-IMPLEMENTATION ---
   renderFooter() {
     const pageId = document.body.id;
     if (pageId === "page-login" || pageId === "page-register") return;
@@ -722,10 +724,8 @@ const app = {
       footerContainer.id = "footer-container";
       document.body.appendChild(footerContainer);
     }
-
-    const currentYear = new Date().getFullYear();
-
-    // Note: We use 'site-footer' class primarily for the sidebar margin transitions defined in css
+    
+    // Premium Dark Footer Design
     footerContainer.innerHTML = `
       <footer class="site-footer bg-slate-900 text-slate-300 font-sans border-t border-slate-800">
         <!-- Top Section: Brand & Newsletter -->
@@ -733,9 +733,23 @@ const app = {
             <div class="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-slate-800 pb-12">
                 <div class="flex flex-col gap-4 max-w-md text-center md:text-left">
                     <div class="flex items-center justify-center md:justify-start gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                            <i class="fa-solid fa-layer-group text-lg"></i>
-                        </div>
+                        <!-- SVG Logo (matching navbar) -->
+                        <svg class="w-10 h-10" viewBox="0 0 64 64" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="40" height="40" rx="8" fill="#0b1220"></rect>
+                            <g transform="translate(8,8)" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">
+                                <path d="M6 6 H18"></path>
+                                <circle cx="6" cy="6" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+                                <circle cx="18" cy="6" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+                                <path d="M6 18 V12"></path>
+                                <circle cx="6" cy="18" r="1.6" fill="#0ea5e9" stroke="none"></circle>
+                            </g>
+                            <g transform="translate(28,28) rotate(-10)">
+                                <circle cx="6" cy="6" r="6" stroke="#ffffff" stroke-width="2.4" fill="none" opacity="0.95"></circle>
+                                <rect x="11" y="11" width="9" height="3" rx="1.2" transform="rotate(45 11 11)" fill="#111827" stroke="#ffffff" stroke-width="1.6"></rect>
+                            </g>
+                            <polygon points="50,8 52.5,13 58,13 53.5,16 55.5,21 50,17 44.5,21 46.5,16 42,13 47.5,13" fill="#facc15" stroke="#f59e0b" stroke-width="0.6"></polygon>
+                            <rect x="2" y="2" width="40" height="40" rx="8" fill="none" stroke="rgba(255,255,255,0.03)"></rect>
+                        </svg>
                         <span class="text-2xl font-black text-white tracking-tight">Tech<span class="text-blue-500">Review</span></span>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed">
@@ -785,10 +799,11 @@ const app = {
                 <div>
                     <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Kurumsal</h4>
                     <ul class="space-y-3 text-sm">
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">Hakkımızda</a></li>
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">Kariyer</a></li>
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">İletişim</a></li>
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">Reklam</a></li>
+                        <li><a href="about.html" class="hover:text-blue-400 transition-colors">Hakkımızda</a></li>
+                        <li><a href="affiliate.html" class="hover:text-blue-400 transition-colors">Ortaklık & Reklam</a></li>
+                        <li><a href="support.html" class="hover:text-blue-400 transition-colors">Destek & İletişim</a></li>
+                        <li><a href="faq.html" class="hover:text-blue-400 transition-colors">S.S.S.</a></li>
+                         <li><a href="sitemap.html" class="hover:text-blue-400 transition-colors">Site Haritası</a></li>
                     </ul>
                 </div>
 
@@ -816,18 +831,19 @@ const app = {
         <div class="bg-black/20 py-8 border-t border-slate-800/50">
             <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-slate-500 text-xs">
-                    &copy; ${currentYear} TechReview Inc. Tüm hakları saklıdır.
+                    © 2026 TechReview Inc. Tüm hakları saklıdır.
                 </p>
                 <div class="flex items-center gap-6 text-xs text-slate-500">
-                    <a href="#" class="hover:text-white transition-colors">Gizlilik Politikası</a>
-                    <a href="#" class="hover:text-white transition-colors">Kullanım Şartları</a>
-                    <a href="#" class="hover:text-white transition-colors">Çerezler</a>
+                    <a href="privacy.html" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                    <a href="terms.html" class="hover:text-white transition-colors">Kullanım Şartları</a>
+                    <a href="cookies.html" class="hover:text-white transition-colors">Çerezler</a>
                 </div>
             </div>
         </div>
       </footer>
     `;
   },
+
 
   // --- HELPER: YILDIZ OLUŞTURUCU ---
   generateStarRating(rating) {
@@ -1503,7 +1519,224 @@ const app = {
       }
     });
   },
+
+  async initForumDetail() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (!id) return;
+
+    this.changeTheme("Forum");
+
+    try {
+        const topic = await api.get(`/forum/topics/${id}`);
+        const posts = await api.get(`/forum/topics/${id}/posts`);
+        
+        // Target the main container
+        const mainContainer = document.getElementById("forum-detail-container");
+        if (mainContainer) {
+            mainContainer.innerHTML = `
+                <!-- Modernized Topic Header -->
+                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 mb-8 text-white relative overflow-hidden shadow-2xl border border-slate-700 group">
+                    <!-- Background Decoration -->
+                    <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                        <i class="fa-solid fa-comments text-9xl text-white"></i>
+                    </div>
+                     <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        <!-- Meta Top -->
+                        <div class="flex items-center gap-3 mb-6">
+                             <a href="forum.html" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-4 py-1.5 rounded-full text-xs font-bold transition-all backdrop-blur-sm flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Geri
+                             </a>
+                             <span class="bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                                ${topic.category || 'Genel'}
+                             </span>
+                             <span class="text-slate-400 text-xs flex items-center gap-1 font-medium bg-black/20 px-3 py-1.5 rounded-full">
+                                <i class="fa-regular fa-clock"></i> ${new Date(topic.createdAt).toLocaleDateString('tr-TR')}
+                             </span>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h1 class="text-3xl md:text-5xl font-black mb-8 leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-indigo-100 drop-shadow-sm">
+                            ${topic.title}
+                        </h1>
+                        
+                        <!-- Author Info -->
+                        <div class="flex items-center gap-4 border-t border-white/10 pt-6">
+                            <div class="flex items-center gap-3">
+                                 <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-lg text-white shadow-lg border-2 border-slate-800 ring-2 ring-indigo-500/30">
+                                    ${(topic.username || 'A').charAt(0).toUpperCase()}
+                                 </div>
+                                 <div>
+                                    <span class="block text-sm font-bold text-white tracking-wide">${topic.username}</span>
+                                    <span class="block text-xs text-indigo-300 font-medium">Konu Sahibi</span>
+                                 </div>
+                            </div>
+                            
+                            <div class="h-8 w-px bg-white/10"></div>
+                            
+                            <div class="flex items-center gap-2 text-xs text-slate-400">
+                                <i class="fa-regular fa-comment-dots"></i>
+                                <span>${posts.length} Cevap</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts List -->
+                <div id="posts-container" class="space-y-8 mb-12 relative pl-4 md:pl-0">
+                     <!-- Vertical Line for Timeline Effect -->
+                     <div class="absolute left-6 md:left-24 top-0 bottom-0 w-0.5 bg-gray-200 hidden md:block z-0"></div>
+                     
+                     ${posts.length === 0 
+                        ? '<div class="text-center py-16 text-gray-500 bg-white rounded-3xl border border-dashed border-gray-300 relative z-10"><i class="fa-solid fa-wind text-4xl mb-3 text-gray-300 block"></i>Henüz cevap yazılmamış.<br>İlk cevabı sen yaz!</div>' 
+                        : posts.map((post, index) => `
+                            <div class="relative z-10 flex flex-col md:flex-row gap-6 group">
+                                <!-- Mobile Date (Visible only on small screens) -->
+                                <div class="md:hidden text-xs text-gray-400 mb-1 pl-2 font-mono">
+                                    <i class="fa-regular fa-clock mr-1"></i>${new Date(post.createdAt).toLocaleDateString('tr-TR')}
+                                </div>
+
+                                <!-- Desktop Avatar & Timeline Node -->
+                                <div class="hidden md:flex flex-col items-center w-48 shrink-0 pt-2">
+                                    <div class="w-14 h-14 rounded-2xl bg-white shadow-md border-2 border-white flex items-center justify-center text-xl font-bold text-gray-700 relative z-10 mb-3 group-hover:scale-110 transition-transform duration-300">
+                                        ${(post.username || 'U').charAt(0).toUpperCase()}
+                                        ${index === 0 ? '<span class="absolute -top-2 -right-2 bg-yellow-400 text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-sm"><i class="fa-solid fa-crown"></i></span>' : ''}
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="font-bold text-sm text-gray-900 truncate max-w-[100px]">${post.username}</p>
+                                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">Üye</p>
+                                    </div>
+                                    <div class="mt-4 text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
+                                        #${index + 1}
+                                    </div>
+                                </div>
+
+                                <!-- Post Content Bubble -->
+                                <div class="flex-1 bg-white rounded-2xl rounded-tl-none md:rounded-tl-2xl shadow-sm border border-gray-100 p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative">
+                                    <!-- Mobile Avatar (Inside bubble) -->
+                                    <div class="flex items-center gap-3 md:hidden mb-4 border-b border-gray-50 pb-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-600">
+                                            ${(post.username || 'U').charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-900">${post.username}</p>
+                                            <p class="text-xs text-gray-500">Üye</p>
+                                        </div>
+                                        <div class="ml-auto text-xs text-gray-300 font-mono">#${index + 1}</div>
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">
+                                        ${post.content}
+                                    </div>
+                                    
+                                    <!-- Footer (Date/Actions) -->
+                                    <div class="mt-6 pt-4 border-t border-gray-50 flex justify-between items-center">
+                                        <div class="text-xs text-gray-400 font-medium flex items-center gap-2">
+                                            <i class="fa-regular fa-calendar-check text-blue-400"></i>
+                                            ${new Date(post.createdAt).toLocaleDateString('tr-TR')} ${new Date(post.createdAt).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}
+                                        </div>
+                                        <button class="text-gray-400 hover:text-blue-600 transition-colors text-sm">
+                                            <i class="fa-regular fa-heart"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                </div>
+
+                <!-- Reply Area -->
+                <div class="relative z-20">
+                    ${this.currentUser 
+                        ? `
+                        <div class="bg-white rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100 overflow-hidden transform transition-all hover:shadow-2xl hover:border-blue-200">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-100 flex items-center justify-between">
+                                <h3 class="font-bold text-blue-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-pen-nib text-blue-600"></i> 
+                                    Cevap Yaz
+                                </h3>
+                                <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">@${this.currentUser.username}</span>
+                            </div>
+                            <form id="reply-form" class="p-6">
+                                <div class="mb-4">
+                                    <textarea 
+                                        name="content" 
+                                        rows="5" 
+                                        class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-4 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-y text-base"
+                                        placeholder="Bu konu hakkında ne düşünüyorsun? Fikirlerin değerli..."
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <p class="text-xs text-gray-400 hidden md:block">
+                                        <i class="fa-solid fa-circle-info mr-1"></i> Saygılı ve yapıcı yorumlar topluluğumuzu büyütür.
+                                    </p>
+                                    <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-600/40 hover:-translate-y-1 transition-all flex items-center gap-2 group">
+                                        <span>Gönder</span>
+                                        <i class="fa-solid fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        ` 
+                        : `
+                        <div class="text-center p-12 bg-gray-50 rounded-3xl border border-gray-200">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Cevap Yazmak İçin Giriş Yapmalısın</h3>
+                            <p class="text-gray-500 mb-6 max-w-md mx-auto">Tartışmalara katılmak ve fikirlerini paylaşmak için hemen giriş yap veya ücretsiz kayıt ol.</p>
+                            <div class="flex justify-center gap-4">
+                                <a href="login.html" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">Giriş Yap</a>
+                                <a href="register.html" class="bg-white text-gray-900 border border-gray-200 px-6 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-colors">Kayıt Ol</a>
+                            </div>
+                        </div>
+                        `
+                    }
+                </div>
+            `;
+        }
+
+        // 3. Reply Form Logic
+        const form = document.getElementById("reply-form");
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (!this.currentUser) {
+                    alert('Cevap yazmak için giriş yapmalısınız.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                try {
+                    await api.post("/forum/posts", {
+                        topicId: id,
+                        userId: this.currentUser.id,
+                        username: this.currentUser.username,
+                        content: form.content.value
+                    });
+                    
+                    form.reset(); // Don't use window.location.reload() immediately
+                    // this.initForumDetail(); // Re-render logic is redundant but safe, better to just reload
+                    window.location.reload();
+                } catch (err) {
+                    alert('Hata: ' + err.message);
+                }
+            });
+        }
+
+    } catch (e) {
+        console.error(e);
+        const mainContainer = document.getElementById("forum-detail-container");
+        if (mainContainer) {
+            mainContainer.innerHTML = '<div class="text-red-500 p-4 bg-red-50 rounded border border-red-200 text-center">Konu yüklenirken hata oluştu.</div>';
+        }
+    }
+  },
   async initProductDetail() {
+    console.log("🚀 Custom Log: initProductDetail STARTED");
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     if (!id) return;
@@ -1512,9 +1745,9 @@ const app = {
       const reviews = await api.get(`/reviews/${id}`);
       const theme = this.changeTheme(product.category);
       document.getElementById("detail-container").innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div class="flex flex-col md:flex-row gap-8 items-start">
             <!-- Left Column: Content + Review Form -->
-            <div class="lg:col-span-3">
+            <div class="w-full md:w-[60%] lg:w-[65%]">
                 <!-- Product Card (Now contains form) -->
                 <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
                     <div class="h-[600px] relative bg-gray-900 group overflow-hidden">
@@ -1681,7 +1914,7 @@ const app = {
           </div>
 
           <!-- Right Column: Comments List Only -->
-          <div class="lg:col-span-2">
+          <div class="w-full md:w-[40%] lg:w-[35%]">
               <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 sticky top-24">
                   <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
                         <i class="fa-regular fa-comments text-gray-400"></i>
@@ -1733,10 +1966,14 @@ const app = {
       </div>
     `;
 
-      // Initialize Star Rating Logic
+      // Initialize Star Rating Logic (only if form exists)
       if (this.currentUser) {
+        const reviewForm = document.getElementById("review-form");
         const stars = document.querySelectorAll("#star-rating i");
         const ratingInput = document.getElementById("rating-input");
+
+        // Only attach listeners if the form exists (user hasn't reviewed yet)
+        if (reviewForm && stars.length > 0 && ratingInput) {
 
         function updateStarDisplay(val, isHover = false) {
           stars.forEach((s) => {
@@ -1770,9 +2007,7 @@ const app = {
           });
         });
 
-        document
-          .getElementById("review-form")
-          .addEventListener("submit", async (e) => {
+        reviewForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const rating = ratingInput.value;
 
@@ -1821,116 +2056,137 @@ const app = {
               alert("Yorum kaydedilirken hata oluştu: " + err.message);
             }
           });
+        }
       }
     } catch (e) {
-      console.error(e);
+      console.error("Product detail error:", e);
+      console.error("Error stack:", e.stack);
       document.getElementById("detail-container").innerHTML =
-        "<div class='text-center py-20 text-red-500'>Hata oluştu.</div>";
+        `<div class='text-center py-20 text-red-500'>
+          <p class='font-bold mb-2'>Hata oluştu.</p>
+          <p class='text-sm text-gray-600'>${e.message}</p>
+          <p class='text-xs text-gray-400 mt-2'>Detaylar için konsola bakın.</p>
+        </div>`;
     }
   },
   async initForumDetail() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    if (!id) return;
-    this.changeTheme("Forum");
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    if (!id) {
+        alert("Konu bulunamadı. Foruma yönlendiriliyorsunuz.");
+        window.location.href = "forum.html";
+        return;
+    }
+
     try {
       const topic = await api.get(`/forum/topics/${id}`);
       const posts = await api.get(`/forum/topics/${id}/posts`);
-      document.getElementById("forum-detail-container").innerHTML = `
-        <!-- Modernized Topic Header -->
-        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 mb-8 text-white relative overflow-hidden shadow-2xl border border-slate-700">
-            <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
-                <i class="fa-solid fa-comments text-9xl text-white"></i>
+
+      const container = document.getElementById("forum-detail-container");
+      if (!topic || !topic.id) {
+          container.innerHTML = '<div class="text-center py-20 text-gray-500">Konu bulunamadı veya silinmiş.</div>';
+          return;
+      }
+
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            <div class="p-8 border-b border-gray-100 bg-gray-50/30">
+                <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-md font-bold mb-4 tracking-wide">${topic.category || "Genel"}</span>
+                <h1 class="text-3xl font-black text-gray-900 mb-4 leading-tight">${topic.title}</h1>
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">
+                            ${(topic.username || "A").charAt(0).toUpperCase()}
+                        </div>
+                        <span class="font-bold text-gray-700">${topic.username || "Anonim"}</span>
+                    </div>
+                    <span>&bull;</span>
+                    <span>${new Date(topic.createdAt).toLocaleDateString("tr-TR")}</span>
+                </div>
+            </div>
+
+            <div class="p-8 space-y-8">
+                 ${posts.length > 0 ? posts.map((p, index) => `
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-sm border-2 border-white shadow-sm">
+                                ${(p.username || "A").charAt(0).toUpperCase()}
+                            </div>
+                        </div>
+                        <div class="flex-1 bg-gray-50 rounded-2xl p-6 rounded-tl-none relative group hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-bold text-gray-900 text-sm">${p.username || "Anonim"}</span>
+                                <span class="text-xs text-gray-400 font-medium">#${index + 1} &bull; ${new Date(p.createdAt).toLocaleString("tr-TR")}</span>
+                            </div>
+                            <div class="text-gray-700 text-sm leading-relaxed whitespace-pre-line">${p.content}</div>
+                            
+                            ${(this.currentUser && this.currentUser.id === p.userId) ? `
+                             <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
+                                 <button onclick="app.editForumPost(${p.id}, '${p.content.replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "")}')" class="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors" title="Düzenle">
+                                     <i class="fa-solid fa-pen text-xs"></i>
+                                 </button>
+                                 <button onclick="app.deleteForumPost(${p.id})" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors" title="Sil">
+                                     <i class="fa-solid fa-trash text-xs"></i>
+                                 </button>
+                             </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                 `).join("") : '<div class="text-center text-gray-400 italic py-4">Henüz cevap yok. İlk cevabı sen yaz!</div>'}
             </div>
             
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-4">
-                     <span class="bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
-                        ${topic.category}
-                     </span>
-                     <span class="text-slate-400 text-xs flex items-center gap-1">
-                        <i class="fa-regular fa-clock"></i> ${new Date(topic.createdAt).toLocaleDateString("tr-TR")}
-                     </span>
-                </div>
-                
-                <h1 class="text-3xl md:text-4xl font-black mb-6 leading-tight">${topic.title}</h1>
-                
-                <div class="flex items-center gap-4 border-t border-white/10 pt-6">
-                    <div class="flex items-center gap-3">
-                         <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-slate-800">
-                            ${topic.username.charAt(0).toUpperCase()}
-                         </div>
-                         <div>
-                            <span class="block text-sm font-bold text-white">${topic.username}</span>
-                            <span class="block text-xs text-slate-400">Konu Sahibi</span>
-                         </div>
-                    </div>
-                </div>
+            <div class="p-8 bg-gray-50 border-t border-gray-100">
+                 <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-reply text-blue-500"></i> Cevap Yaz
+                 </h3>
+                 <form id="reply-form">
+                     <textarea name="content" class="w-full border border-gray-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 mb-4 transition-all bg-white" rows="4" placeholder="Düşüncelerini paylaş..." required></textarea>
+                     <div class="flex justify-end">
+                         <button type="submit" class="bg-gray-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-gray-200 transform active:scale-95">
+                            Yanıtla
+                         </button>
+                     </div>
+                 </form>
             </div>
         </div>
+      `;
 
-        <!-- Posts List -->
-        <div class="space-y-6 mb-12 relative">
-             <div class="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-100 hidden md:block"></div>
-             ${posts.map((p, index) => `
-                <div class="relative pl-0 md:pl-16 group">
-                    <!-- Connector Line Dot (Desktop only) -->
-                    <div class="absolute left-[21px] top-8 w-3 h-3 bg-white border-2 border-indigo-500 rounded-full z-10 hidden md:block group-hover:scale-125 transition-transform"></div>
-                    
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-start justify-between mb-4 border-b border-gray-50 pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm">
-                                    ${p.username.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <span class="block font-bold text-gray-900 text-sm">${p.username}</span>
-                                    <span class="block text-xs text-gray-400">${new Date(p.createdAt).toLocaleDateString("tr-TR")} • ${new Date(p.createdAt).toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'})}</span>
-                                </div>
-                            </div>
-                            <span class="text-xs font-mono text-gray-300">#${index + 1}</span>
-                        </div>
-                        <div class="prose prose-sm max-w-none text-slate-700 leading-relaxed">
-                            <p>${p.content}</p>
-                        </div>
-                    </div>
-                </div>
-             `).join("")}
-        </div>
-
-        ${
-        this.currentUser
-          ? `<div class="bg-white p-6 rounded-2xl border border-indigo-100 sticky bottom-6 shadow-xl z-20">
-                <form id="reply-form" class="flex gap-4 items-start">
-                     <div class="w-10 h-10 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center font-bold text-xs text-slate-500 hidden sm:flex">
-                        ${this.currentUser.username.charAt(0).toUpperCase()}
-                     </div>
-                     <div class="flex-1">
-                        <input name="content" class="w-full border border-gray-200 bg-gray-50 p-4 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm font-medium" placeholder="Bu konuya bir cevap yaz..." required autocomplete="off">
-                     </div>
-                     <button class="bg-indigo-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 flex items-center gap-2">
-                        <span>Gönder</span> <i class="fa-solid fa-paper-plane text-xs"></i>
-                     </button>
-                </form>
-             </div>`
-          : '<div class="text-center p-8 bg-gray-50 rounded-2xl text-gray-500">Cevap yazmak için giriş yapmalısınız.</div>'
-        }`;
-      if (this.currentUser) {
-        document
-          .getElementById("reply-form")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            await api.post("/forum/posts", {
-              topicId: id,
-              userId: this.currentUser.id,
-              username: this.currentUser.username,
-              content: e.target.content.value,
-            });
-            window.location.reload();
+      // Handle Reply
+      const replyForm = document.getElementById("reply-form");
+      if(replyForm) {
+          replyForm.addEventListener("submit", async (e) => {
+              e.preventDefault();
+              if (!this.currentUser) {
+                  alert("Cevap yazmak için giriş yapmalısınız.");
+                  window.location.href = "login.html";
+                  return;
+              }
+              const content = e.target.content.value;
+              try {
+                  await api.post("/forum/posts", {
+                      topicId: id,
+                      userId: this.currentUser.id,
+                      username: this.currentUser.username,
+                      content
+                  });
+                  window.location.reload();
+              } catch (err) {
+                  console.error(err);
+                  alert("Hata oluştu: " + err.message);
+              }
           });
       }
-    } catch (e) {
-      console.error(e);
+
+    } catch (error) {
+       console.error("Forum detail error:", error);
+       const container = document.getElementById("forum-detail-container");
+       if(container) {
+           container.innerHTML = `
+            <div class='text-center py-20 text-red-500'>
+              <p class='font-bold mb-2'>İçerik yüklenirken hata oluştu.</p>
+              <p class='text-sm text-gray-600'>${error.message}</p>
+            </div>`;
+       }
     }
   },
   async initProfile() {
@@ -2087,6 +2343,42 @@ const app = {
           } else {
               cartList.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">Favori listeniz boş.</div>';
           }
+      }
+
+      // Render My Forum Posts
+      const myForumList = document.getElementById("my-forum-list");
+      if (myForumList) {
+         try {
+             // We need to fetch it first since it wasn't fetched in parallel above (optimized)
+             const myPosts = await api.get(`/users/${this.currentUser.id}/forum-posts`);
+             if(myPosts && myPosts.length > 0) {
+                 myForumList.innerHTML = myPosts.map(p => `
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">${p.topicTitle || 'Konu'}</span>
+                            <span class="text-xs text-gray-400">${new Date(p.createdAt).toLocaleDateString("tr-TR")}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm line-clamp-2 mb-3 leading-relaxed">${p.content}</p>
+                        <div class="flex justify-end gap-2 border-t border-gray-100 pt-2">
+                            <button onclick="window.location.href='forum-detail.html?id=${p.topicId}'" class="text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors">
+                                <i class="fa-solid fa-arrow-right mr-1"></i> Git
+                            </button>
+                            <button onclick="app.editForumPost(${p.id}, '${p.content.replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "")}')" class="text-xs font-bold text-blue-500 hover:text-blue-700 transition-colors">
+                                <i class="fa-solid fa-pen mr-1"></i> Düzenle
+                            </button>
+                            <button onclick="app.deleteForumPost(${p.id})" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                                <i class="fa-solid fa-trash mr-1"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                 `).join('');
+             } else {
+                 myForumList.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">Henüz forum gönderiniz yok.</div>';
+             }
+         } catch(e) {
+             console.error("Forum posts fetch error:", e);
+             myForumList.innerHTML = '<div class="text-center text-red-400 text-sm py-4">Yüklenirken hata oluştu.</div>';
+         }
       }
 
       // Update Stats
@@ -2261,6 +2553,27 @@ const app = {
     } catch (err) {
         alert("Güncelleme hatası: " + err.message);
     }
+  },
+  async deleteForumPost(id) {
+     if(!confirm("Bu gönderiyi silmek istediğinize emin misiniz?")) return;
+     try {
+         await api.delete(`/forum/posts/${id}`);
+         window.location.reload();
+     } catch(e) {
+         alert("Silme hatası: " + e.message);
+     }
+  },
+  async editForumPost(id, currentContent) {
+      const newContent = prompt("Gönderinizi düzenleyin:", currentContent);
+      if(newContent === null) return;
+      if(!newContent.trim()) return alert("İçerik boş olamaz.");
+      
+      try {
+          await api.put(`/forum/posts/${id}`, { content: newContent });
+          window.location.reload();
+      } catch(e) {
+          alert("Güncelleme hatası: " + e.message);
+      }
   },
   logout() {
     localStorage.removeItem("current_user_session");

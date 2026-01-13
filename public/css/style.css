@@ -1,0 +1,10 @@
+/* Main Style Index
+   Imports all modular CSS files.
+   HTML files link to this file.
+*/
+
+@import 'main.css';
+@import 'layout.css';
+@import 'product.css';
+@import 'profile.css';
+/* Add new page-specific CSS imports here */
