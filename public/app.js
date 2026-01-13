@@ -1511,14 +1511,26 @@ const app = {
                                               <h4 class="font-bold text-gray-800 text-lg mb-1">Senin Değerlendirmen</h4>
                                               <p class="text-xs text-gray-500">Bu ürünü daha önce inceledin.</p>
                                           </div>
-                                          <div class="flex gap-2">
-                                              <button onclick="app.editReview(${userReview.id}, '${userReview.content.replace(/'/g, "\\'")}', ${userReview.rating})" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all">
-                                                  <i class="fa-solid fa-pen"></i> Düzenle
-                                              </button>
-                                              <button onclick="app.deleteReview(${userReview.id})" class="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-all">
-                                                  <i class="fa-solid fa-trash"></i> Sil
-                                              </button>
                                           </div>
+                                      </div>
+                                      
+                                      <div class="flex items-center gap-3 mb-3 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
+                                          <div class="text-orange-400 text-sm flex gap-0.5">${this.generateStarRating(userReview.rating)}</div>
+                                          <span class="font-bold text-gray-700 text-sm">${userReview.rating}/5</span>
+                                      </div>
+                                      
+                                      <p class="text-gray-700 leading-relaxed text-sm bg-gray-50/50 p-4 rounded-xl border border-gray-100 italic mb-3">
+                                          "${userReview.content}"
+                                      </p>
+
+                                      <div class="flex justify-end gap-2 pt-2 border-t border-gray-50">
+                                          <button onclick="app.editReview(${userReview.id}, '${userReview.content.replace(/'/g, "\\'")}', ${userReview.rating})" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all">
+                                              <i class="fa-solid fa-pen"></i> Düzenle
+                                          </button>
+                                          <button onclick="app.deleteReview(${userReview.id})" class="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-all">
+                                              <i class="fa-solid fa-trash"></i> Sil
+                                          </button>
+                                      </div>
                                       </div>
                                       
                                       <div class="flex items-center gap-3 mb-3 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
@@ -1948,14 +1960,6 @@ const app = {
             .map(
               (r) =>
                 `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group transition-all hover:bg-white hover:shadow-sm">
-                    <div class="absolute top-2 right-2 flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                        <button onclick="app.editReview(${r.id}, '${r.content.replace(/'/g, "\\'")}', ${r.rating})" class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-all" title="Düzenle">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="app.deleteReview(${r.id})" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Sil">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                              <span class="text-xs font-bold bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Ürün</span>
@@ -1971,7 +1975,16 @@ const app = {
                 }/5</span>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-600 italic">"${r.content}"</p>
+                    <p class="text-sm text-gray-600 italic mb-4">"${r.content}"</p>
+                    
+                    <div class="flex justify-end gap-2 border-t border-gray-100 pt-3 opacity-80 group-hover:opacity-100">
+                        <button onclick="app.editReview(${r.id}, '${r.content.replace(/'/g, "\\'")}', ${r.rating})" class="flex items-center gap-2 bg-white border border-gray-200 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:text-blue-600 hover:border-blue-200 transition-all">
+                            <i class="fa-solid fa-pen"></i> Düzenle
+                        </button>
+                        <button onclick="app.deleteReview(${r.id})" class="flex items-center gap-2 bg-white border border-gray-200 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:text-red-500 hover:border-red-200 transition-all">
+                            <i class="fa-solid fa-trash"></i> Sil
+                        </button>
+                    </div>
                 </div>`
             )
             .join("");
