@@ -1500,34 +1500,68 @@ const app = {
                   <div class="border-t border-gray-100 bg-gray-50/50 p-8 sm:p-12">
                       ${
                         this.currentUser
-                          ? `
-                          <form id="review-form">
-                              <h4 class="font-bold text-gray-800 mb-3 text-lg">Yorum Yap ve Puan Ver</h4>
-                              
-                              <div class="mb-4">
-                                  <label class="block text-sm font-bold text-gray-700 mb-2">Puanınız (1-5)</label>
-                                  <div class="flex gap-1 text-2xl text-gray-300 cursor-pointer" id="star-rating">
-                                      ${Array(5)
-                                        .fill(0)
-                                        .map(
-                                          (_, i) =>
-                                            `<i class="fa-solid fa-star transition-colors hover:scale-110" data-value="${
-                                              i + 1
-                                            }"></i>`
-                                        )
-                                        .join("")}
+                          ? (() => {
+                              const userReview = reviews.find(r => r.userId === this.currentUser.id);
+                              if (userReview) {
+                                return `
+                                  <div class="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden">
+                                      <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                      <div class="flex justify-between items-start mb-4">
+                                          <div>
+                                              <h4 class="font-bold text-gray-800 text-lg mb-1">Senin Değerlendirmen</h4>
+                                              <p class="text-xs text-gray-500">Bu ürünü daha önce inceledin.</p>
+                                          </div>
+                                          <div class="flex gap-2">
+                                              <button onclick="app.editReview(${userReview.id}, '${userReview.content.replace(/'/g, "\\'")}', ${userReview.rating})" class="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all">
+                                                  <i class="fa-solid fa-pen"></i> Düzenle
+                                              </button>
+                                              <button onclick="app.deleteReview(${userReview.id})" class="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-all">
+                                                  <i class="fa-solid fa-trash"></i> Sil
+                                              </button>
+                                          </div>
+                                      </div>
+                                      
+                                      <div class="flex items-center gap-3 mb-3 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
+                                          <div class="text-orange-400 text-sm flex gap-0.5">${this.generateStarRating(userReview.rating)}</div>
+                                          <span class="font-bold text-gray-700 text-sm">${userReview.rating}/5</span>
+                                      </div>
+                                      
+                                      <p class="text-gray-700 leading-relaxed text-sm bg-gray-50/50 p-4 rounded-xl border border-gray-100 italic">
+                                          "${userReview.content}"
+                                      </p>
                                   </div>
-                                  <input type="hidden" name="rating" id="rating-input" required>
-                              </div>
+                                `;
+                              } else {
+                                return `
+                                  <form id="review-form">
+                                      <h4 class="font-bold text-gray-800 mb-3 text-lg">Yorum Yap ve Puan Ver</h4>
+                                      
+                                      <div class="mb-4">
+                                          <label class="block text-sm font-bold text-gray-700 mb-2">Puanınız (1-5)</label>
+                                          <div class="flex gap-1 text-2xl text-gray-300 cursor-pointer" id="star-rating">
+                                              ${Array(5)
+                                                .fill(0)
+                                                .map(
+                                                  (_, i) =>
+                                                    `<i class="fa-solid fa-star transition-colors hover:scale-110" data-value="${
+                                                      i + 1
+                                                    }"></i>`
+                                                )
+                                                .join("")}
+                                          </div>
+                                          <input type="hidden" name="rating" id="rating-input" required>
+                                      </div>
 
-                              <textarea name="content" class="w-full border border-gray-200 p-4 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none resize-none bg-white" rows="3" placeholder="Bu ürün hakkında ne düşünüyorsun?" required></textarea>
-                              <div class="flex justify-end">
-                                  <button class="text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95" style="background-color: ${
-                                    theme.primary
-                                  }">Gönder</button>
-                              </div>
-                          </form>
-                      `
+                                      <textarea name="content" class="w-full border border-gray-200 p-4 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none resize-none bg-white" rows="3" placeholder="Bu ürün hakkında ne düşünüyorsun?" required></textarea>
+                                      <div class="flex justify-end">
+                                          <button class="text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95" style="background-color: ${
+                                            theme.primary
+                                          }">Gönder</button>
+                                      </div>
+                                  </form>
+                                `;
+                              }
+                            })()
                           : `
                           <div class="text-center">
                               <p class="text-blue-900 font-medium mb-3">Yorum yapmak için giriş yapmalısın.</p>
@@ -1914,11 +1948,14 @@ const app = {
             .map(
               (r) =>
                 `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group transition-all hover:bg-white hover:shadow-sm">
-                    <button onclick="app.deleteReview(${
-                      r.id
-                    })" class="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all opacity-60 hover:opacity-100" title="Sil">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div class="absolute top-2 right-2 flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <button onclick="app.editReview(${r.id}, '${r.content.replace(/'/g, "\\'")}', ${r.rating})" class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-all" title="Düzenle">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="app.deleteReview(${r.id})" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Sil">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                              <span class="text-xs font-bold bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Ürün</span>
@@ -1995,6 +2032,31 @@ const app = {
       window.location.reload();
     } catch (err) {
       alert("Hata: " + err.message);
+    }
+  },
+  async editReview(id, currentContent, currentRating) {
+    // Simple prompt-based editing for now
+    const newContent = prompt("Yorumunuzu düzenleyin:", currentContent);
+    if (newContent === null) return; // User cancelled
+
+    let newRating = prompt("Yeni puanınız (1-5):", currentRating);
+    if (newRating === null) return; // User cancelled
+    
+    newRating = parseInt(newRating);
+    if (isNaN(newRating) || newRating < 1 || newRating > 5) {
+        alert("Geçersiz puan! 1 ile 5 arasında bir sayı girin.");
+        return;
+    }
+
+    try {
+        await api.put(`/reviews/${id}`, {
+            rating: newRating,
+            content: newContent
+        });
+        alert("Yorumunuz güncellendi!");
+        window.location.reload();
+    } catch (err) {
+        alert("Güncelleme hatası: " + err.message);
     }
   },
   logout() {
