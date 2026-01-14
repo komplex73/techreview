@@ -1839,7 +1839,6 @@ const app = {
                                               <h4 class="font-bold text-gray-800 text-lg mb-1">Senin Değerlendirmen</h4>
                                               <p class="text-xs text-gray-500">Bu ürünü daha önce inceledin.</p>
                                           </div>
-                                          </div>
                                       </div>
                                       
                                       <div class="flex items-center gap-3 mb-3 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
@@ -1859,16 +1858,6 @@ const app = {
                                               <i class="fa-solid fa-trash"></i> Sil
                                           </button>
                                       </div>
-                                      </div>
-                                      
-                                      <div class="flex items-center gap-3 mb-3 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
-                                          <div class="text-orange-400 text-sm flex gap-0.5">${this.generateStarRating(userReview.rating)}</div>
-                                          <span class="font-bold text-gray-700 text-sm">${userReview.rating}/5</span>
-                                      </div>
-                                      
-                                      <p class="text-gray-700 leading-relaxed text-sm bg-gray-50/50 p-4 rounded-xl border border-gray-100 italic">
-                                          "${userReview.content}"
-                                      </p>
                                   </div>
                                 `;
                               } else {
