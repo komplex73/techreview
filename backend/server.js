@@ -30,6 +30,7 @@ console.log("📂 Static HTML Directory:", htmlDir);
 console.log("📂 Base Directory:", baseDir);
 
 app.use(express.static(htmlDir, { extensions: ['html', 'htm'] }));
+app.use(express.static(path.join(baseDir, 'public'))); // Fallback for favicon, logo, etc.
 
 
 // --- DATABASE SETUP ---
