@@ -440,6 +440,24 @@ app.delete("/api/reviews/:id", (req, res) =>
     res.json({ deleted: true })
   )
 );
+
+app.put("/api/reviews/:id", (req, res) => {
+  const { content, rating } = req.body;
+  const finalRating = parseInt(rating);
+
+  if (isNaN(finalRating) || finalRating < 1 || finalRating > 5) {
+      return res.status(400).json({ error: "Geçersiz puan." });
+  }
+
+  db.run(
+    "UPDATE reviews SET content = ?, rating = ? WHERE id = ?",
+    [content, finalRating, req.params.id],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ updated: this.changes });
+    }
+  );
+});
 app.get("/api/users/:userId/reviews", (req, res) => {
   db.all(
     `SELECT reviews.id, reviews.rating, reviews.content, reviews.createdAt, reviews.productId, products.name as productName 
